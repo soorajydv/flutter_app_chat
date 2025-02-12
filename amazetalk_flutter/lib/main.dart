@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
-        home: RegisterPage(),
+        home: LoginPage(),
         routes: {
           "/login": (_) => LoginPage(),
           "/register": (_) => RegisterPage(),
