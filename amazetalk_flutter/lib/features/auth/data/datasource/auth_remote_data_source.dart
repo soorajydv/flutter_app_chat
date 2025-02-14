@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:amazetalk_flutter/features/auth/data/models/user_model.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 
 class AuthRemoteDataSource {

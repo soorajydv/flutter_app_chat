@@ -3,6 +3,7 @@ import { sendMessage, getMessageByConversation } from "../services/messageServic
 
 export const sendNewMessage = async (req: Request, res: Response) => {
     try {
+        console.log("I am here");
         const { senderId, receiverId, text } = req.body;
         const message = await sendMessage(senderId, receiverId, text);
         res.json(message);
