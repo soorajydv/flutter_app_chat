@@ -1,7 +1,22 @@
+import 'package:amazetalk_flutter/features/conversation/presentation/bloc/conversation_bloc.dart';
+import 'package:amazetalk_flutter/features/conversation/presentation/bloc/conversation_event.dart';
+import 'package:amazetalk_flutter/features/conversation/presentation/bloc/conversation_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MessagePage extends StatelessWidget {
-  const MessagePage({super.key});
+class ConversationPage extends StatefulWidget {
+  const ConversationPage({super.key});
+
+  @override
+  State<ConversationPage> createState() => _ConversationPageState();
+}
+
+class _ConversationPageState extends State<ConversationPage> {
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<ConversationBloc>(context).add(FetchConversations());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,13 +63,30 @@ class MessagePage extends StatelessWidget {
                     topRight: Radius.circular(30),
                   ),
                 ),
-                child: ListView(
-                  children: [
-                    _buildMessageTile("Sandesh", "K xa dost", "08:43"),
-                    _buildMessageTile("Avishek", "K xa dost", "08:43"),
-                    _buildMessageTile("Samip", "K xa dost", "08:43"),
-                    _buildMessageTile("Robin", "K xa dost", "08:43"),
-                  ],
+                child: BlocBuilder<ConversationBloc, ConversationState>(
+                  builder: (context, state) {
+                    if (state is ConversationsLoading) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (state is ConversationsLoaded) {
+                      return ListView.builder(
+                        itemCount: state.conversations.length,
+                        itemBuilder: (context, index) {
+                          final conversation = state.conversations[index];
+                          return _buildMessageTile(
+                              conversation.senderName,
+                              conversation.message,
+                              conversation.createdAt.toString());
+                        },
+                      );
+                    } else if (state is ConversationsError) {
+                      return Center(
+                        child: Text(state.message),
+                      );
+                    }
+                    return Center(child: Text("No conversation found"));
+                  },
                 ),
               ),
             )
