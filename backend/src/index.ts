@@ -11,11 +11,11 @@ const app = express();
 connectDB();
 app.use(json());
 app.use("/auth", authRoutes);
-app.use("/conversation", conversationRoutes);
+app.use("/conversations", conversationRoutes);
 app.use("/message", messageRoutes);
 
 
-const PORT = process.env.POST || 3000;
+const PORT = process.env.POST || 4001;
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

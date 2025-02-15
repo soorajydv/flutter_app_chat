@@ -6,7 +6,7 @@ class ConversationsRepositoriesImpl implements ConversationRepository {
   final ConversationRemoteDataSource remoteDataSource;
   ConversationsRepositoriesImpl({required this.remoteDataSource});
   @override
-  Future<List<ConversationEntity>> fetchConversations() async {
+  Future<ConversationEntity> fetchConversations() async {
     return await remoteDataSource.fetchConversations();
   }
 }

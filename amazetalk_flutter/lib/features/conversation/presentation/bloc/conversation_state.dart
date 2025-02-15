@@ -7,7 +7,7 @@ class ConversationInitial extends ConversationState {}
 class ConversationsLoading extends ConversationState {}
 
 class ConversationsLoaded extends ConversationState {
-  final List<ConversationEntity> conversations;
+  final ConversationEntity conversations;
   ConversationsLoaded(this.conversations);
 }
 

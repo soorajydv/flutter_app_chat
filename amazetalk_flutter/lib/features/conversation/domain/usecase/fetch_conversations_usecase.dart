@@ -6,7 +6,7 @@ class FetchConversationsUsecase {
 
   FetchConversationsUsecase(this.repository);
 
-  Future<List<ConversationEntity>> call() async {
+  Future<ConversationEntity> call() async {
     return repository.fetchConversations();
   }
 }

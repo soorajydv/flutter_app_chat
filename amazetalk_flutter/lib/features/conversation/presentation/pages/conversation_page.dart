@@ -70,13 +70,16 @@ class _ConversationPageState extends State<ConversationPage> {
                         child: CircularProgressIndicator(),
                       );
                     } else if (state is ConversationsLoaded) {
+                      final conversations = state.conversations.data;
                       return ListView.builder(
-                        itemCount: state.conversations.length,
+                        itemCount: conversations.length,
                         itemBuilder: (context, index) {
-                          final conversation = state.conversations[index];
+                          final conversation = conversations[index];
+                          print(
+                              'Conversation: ${conversation.sender!.name} =>  ${conversation.text}');
                           return _buildMessageTile(
-                              conversation.senderName,
-                              conversation.message,
+                              conversation.sender!.name,
+                              conversation.text!,
                               conversation.createdAt.toString());
                         },
                       );

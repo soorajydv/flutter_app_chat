@@ -3,9 +3,8 @@ import { sendMessage, getMessageByConversation } from "../services/messageServic
 
 export const sendNewMessage = async (req: Request, res: Response) => {
     try {
-        console.log("I am here");
-        const { senderId, receiverId, text } = req.body;
-        const message = await sendMessage(senderId, receiverId, text);
+        const { receiverId, text } = req.body;
+        const message = await sendMessage(req.user!.id, receiverId, text);
         res.json(message);
     } catch (error) {
         res.status(500).json({ message: "Error sending message", error });
