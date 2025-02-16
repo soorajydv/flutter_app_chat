@@ -61,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
                   return AuthButton(text: "Login", onPressed: _onLogin);
                 }, listener: (context, state) {
                   if (state is AuthSuccess) {
-                    Navigator.pushNamed(context, "/chatPage");
+                    Navigator.pushNamed(context, "/conversationPage");
                   } else if (state is AuthFailure) {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(SnackBar(content: Text(state.error)));

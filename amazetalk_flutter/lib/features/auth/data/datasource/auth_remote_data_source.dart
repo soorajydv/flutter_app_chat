@@ -1,12 +1,14 @@
 import 'dart:convert';
 
+import 'package:amazetalk_flutter/constant.dart';
 import 'package:amazetalk_flutter/features/auth/data/models/user_model.dart';
 import 'package:http/http.dart' as http;
 
 class AuthRemoteDataSource {
-  final String baseUrl = "http://localhost:3000/auth";
+  final String baseUrl = "$BACKEND_URL/auth";
 
   Future<UserModel> login(String email, String password) async {
+    print('Proceed to login');
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/login'),
@@ -14,6 +16,7 @@ class AuthRemoteDataSource {
         headers: {"Content-Type": "application/json"},
       );
 
+      print('Response: .....$response');
       // ✅ Check for HTTP response status
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
@@ -35,6 +38,7 @@ class AuthRemoteDataSource {
             "Unexpected error. Status Code: ${response.statusCode}");
       }
     } catch (e) {
+      print('error: $e');
       throw Exception("Login failed: ${e.toString()}");
     }
   }

@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
-import { sendMessage, getMessageByConversation } from "../services/messageService";
+import getMessagesBetweenUsers, { sendMessage, getMessageByConversation } from "../services/messageService";
 
 export const sendNewMessage = async (req: Request, res: Response) => {
     try {
-        console.log("I am here");
-        const { senderId, receiverId, text } = req.body;
-        const message = await sendMessage(senderId, receiverId, text);
+        const { receiverId, text } = req.body;
+        const message = await sendMessage(req.user!.id, receiverId, text);
         res.json(message);
     } catch (error) {
         res.status(500).json({ message: "Error sending message", error });
@@ -14,9 +13,10 @@ export const sendNewMessage = async (req: Request, res: Response) => {
 
 export const fetchConversationMessages = async (req: Request, res: Response) => {
     try {
-        const { user1, user2 } = req.params;
-        const messages = await getMessageByConversation(user1, user2);
-        res.json(messages);
+        const { friend } = req.params;
+        const result = await getMessagesBetweenUsers(req.user!.id, friend);
+        if (!result.success) res.sendStatus(400);
+        else res.json(result);
     } catch (error) {
         res.status(500).json({ message: "Error fetching messages", error });
     }

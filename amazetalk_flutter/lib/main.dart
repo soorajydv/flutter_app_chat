@@ -10,7 +10,8 @@ import 'package:amazetalk_flutter/features/conversation/data/datasource/conversa
 import 'package:amazetalk_flutter/features/conversation/data/repositories/conversations_repositories_impl.dart';
 import 'package:amazetalk_flutter/features/conversation/domain/repositories/conversation_repository.dart';
 import 'package:amazetalk_flutter/features/conversation/domain/usecase/fetch_conversations_usecase.dart';
-import 'package:amazetalk_flutter/features/conversation/presentation/bloc/conversation_bloc.dart';
+import 'package:amazetalk_flutter/features/conversation/presentation/blocs/conversation_bloc/conversation_bloc.dart';
+import 'package:amazetalk_flutter/features/conversation/presentation/blocs/messages_bloc/messages_bloc.dart';
 import 'package:amazetalk_flutter/features/conversation/presentation/pages/conversation_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -51,9 +52,15 @@ class MyApp extends StatelessWidget {
                 loginUsecase: LoginUsecase(repository: authRepository))),
         BlocProvider(
           create: (_) => ConversationBloc(
-              fetchConversationsUsecase:
-                  FetchConversationsUsecase(conversationRepository)),
-        )
+            fetchConversationsUsecase:
+                FetchConversationsUsecase(conversationRepository),
+          ),
+        ),
+        BlocProvider(
+          create: (_) => MessagesBloc(
+            FetchMessagesUsecase(conversationRepository),
+          ),
+        ),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -61,7 +68,7 @@ class MyApp extends StatelessWidget {
         routes: {
           "/login": (_) => LoginPage(),
           "/register": (_) => RegisterPage(),
-          "/chatPage": (_) => ChatPage(),
+          // "/chatPage": (_) => ChatPage(),
           "/conversationPage": (_) => ConversationPage()
         },
       ),
