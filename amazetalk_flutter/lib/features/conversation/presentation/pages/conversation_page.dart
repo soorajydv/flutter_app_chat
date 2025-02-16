@@ -1,6 +1,7 @@
-import 'package:amazetalk_flutter/features/conversation/presentation/bloc/conversation_bloc.dart';
-import 'package:amazetalk_flutter/features/conversation/presentation/bloc/conversation_event.dart';
-import 'package:amazetalk_flutter/features/conversation/presentation/bloc/conversation_state.dart';
+import 'package:amazetalk_flutter/chat_page.dart';
+import 'package:amazetalk_flutter/features/conversation/presentation/blocs/conversation_bloc/conversation_bloc.dart';
+import 'package:amazetalk_flutter/features/conversation/presentation/blocs/conversation_bloc/conversation_event.dart';
+import 'package:amazetalk_flutter/features/conversation/presentation/blocs/conversation_bloc/conversation_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -80,7 +81,8 @@ class _ConversationPageState extends State<ConversationPage> {
                           return _buildMessageTile(
                               conversation.sender!.name,
                               conversation.text!,
-                              conversation.createdAt.toString());
+                              conversation.createdAt.toString(),
+                              conversation.conversationId!);
                         },
                       );
                     } else if (state is ConversationsError) {
@@ -97,8 +99,16 @@ class _ConversationPageState extends State<ConversationPage> {
         ));
   }
 
-  Widget _buildMessageTile(String name, String message, String time) {
+  Widget _buildMessageTile(
+      String name, String message, String time, String conversationId) {
     return ListTile(
+      onTap: () {
+        // Navigator.pushNamed(context, "/chatPage");
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ChatPage(conversationId)),
+        );
+      },
       contentPadding: EdgeInsets.symmetric(
         horizontal: 20,
         vertical: 10,

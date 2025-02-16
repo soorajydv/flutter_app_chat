@@ -1,6 +1,6 @@
 import 'package:amazetalk_flutter/features/conversation/domain/usecase/fetch_conversations_usecase.dart';
-import 'package:amazetalk_flutter/features/conversation/presentation/bloc/conversation_event.dart';
-import 'package:amazetalk_flutter/features/conversation/presentation/bloc/conversation_state.dart';
+import 'package:amazetalk_flutter/features/conversation/presentation/blocs/conversation_bloc/conversation_event.dart';
+import 'package:amazetalk_flutter/features/conversation/presentation/blocs/conversation_bloc/conversation_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {

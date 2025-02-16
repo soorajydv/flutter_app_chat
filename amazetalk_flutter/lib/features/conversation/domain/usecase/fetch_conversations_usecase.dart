@@ -1,4 +1,5 @@
 import 'package:amazetalk_flutter/features/conversation/domain/entities/conversation_entity.dart';
+import 'package:amazetalk_flutter/features/conversation/domain/entities/messages_entity.dart';
 import 'package:amazetalk_flutter/features/conversation/domain/repositories/conversation_repository.dart';
 
 class FetchConversationsUsecase {
@@ -8,5 +9,15 @@ class FetchConversationsUsecase {
 
   Future<ConversationEntity> call() async {
     return repository.fetchConversations();
+  }
+}
+
+class FetchMessagesUsecase {
+  final ConversationRepository repository;
+
+  FetchMessagesUsecase(this.repository);
+
+  Future<MessagesEntity> call(String conversationId) async {
+    return repository.fetchMessages(conversationId);
   }
 }

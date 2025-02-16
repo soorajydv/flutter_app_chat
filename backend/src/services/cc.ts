@@ -38,34 +38,58 @@ const getUniqueConversationsWithLastMessage = async (
             },
         },
         {
-            $lookup: {
-                from: "users",
-                localField: "lastMessage.sender",
-                foreignField: "_id",
-                as: "senderInfo",
+            $project: {
+                conversationId: "$_id",
+                lastMessage: {
+                    text: "$lastMessage.text",
+                    senderId: "$lastMessage.sender",
+                    createdAt: "$lastMessage.createdAt",
+                },
+                participants: "$conversationInfo.participants",
             },
         },
         {
-            $unwind: "$senderInfo",
+            $addFields: {
+                otherParticipantId: {
+                    $arrayElemAt: [
+                        {
+                            $filter: {
+                                input: "$participants",
+                                as: "participant",
+                                cond: { $ne: ["$$participant", userObjectId] }, // Exclude the current user
+                            },
+                        },
+                        0,
+                    ],
+                },
+            },
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "otherParticipantId",
+                foreignField: "_id",
+                as: "otherParticipant",
+            },
+        },
+        {
+            $unwind: "$otherParticipant",
         },
         {
             $project: {
                 _id: 0,
-                conversationId: "$_id",
-                // receiverId:"$",
-
-                text: "$lastMessage.text",
-                sender: { _id: "$senderInfo._id", name: "$senderInfo.username", },
-                createdAt: "$lastMessage.createdAt",
-
-                // conversationInfo: 1,
+                conversationId: 1,
+                lastMessage: 1,
+                otherParticipant: {
+                    _id: "$otherParticipant._id",
+                    name: "$otherParticipant.name",
+                    email: "$otherParticipant.email",
+                    profilePic: "$otherParticipant.profilePic", // Include only relevant details
+                },
             },
         },
-        {
-            $sort: { createdAt: -1 }, // Sort messages by creation date (latest first)
-        },
-        { $skip: skip }, // Skip for pagination
-        { $limit: limit }, // Limit results per page
+        { $skip: skip }, // Pagination: Skip for the current page
+        { $limit: limit }, // Pagination: Limit results per page
     ]);
 
     // Get total count of unique conversations for the user
