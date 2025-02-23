@@ -1,9 +1,11 @@
 import 'package:amazetalk_flutter/chat_page.dart';
-import 'package:amazetalk_flutter/features/conversation/presentation/blocs/conversation_bloc/conversation_bloc.dart';
-import 'package:amazetalk_flutter/features/conversation/presentation/blocs/conversation_bloc/conversation_event.dart';
-import 'package:amazetalk_flutter/features/conversation/presentation/blocs/conversation_bloc/conversation_state.dart';
+import 'package:amazetalk_flutter/features/conversation/presentation/blocs/chats_bloc/chats_bloc.dart';
+import 'package:amazetalk_flutter/features/conversation/presentation/widgets/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../utils/humanize.dart';
+import 'mesage_page.dart';
 
 class ConversationPage extends StatefulWidget {
   const ConversationPage({super.key});
@@ -16,23 +18,24 @@ class _ConversationPageState extends State<ConversationPage> {
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<ConversationBloc>(context).add(FetchConversations());
+    BlocProvider.of<ChatsBloc>(context).add(FetchChats());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        drawer: AppDrawer(),
         appBar: AppBar(
-          title: Text('Messages'),
+          title: Text('Conversations'),
           centerTitle: false,
           backgroundColor: Colors.transparent,
           toolbarHeight: 70,
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.search),
-            )
-          ],
+          // actions: [
+          //   IconButton(
+          //     onPressed: () {},
+          //     icon: Icon(Icons.search),
+          //   )
+          // ],
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,30 +67,32 @@ class _ConversationPageState extends State<ConversationPage> {
                     topRight: Radius.circular(30),
                   ),
                 ),
-                child: BlocBuilder<ConversationBloc, ConversationState>(
+                child: BlocBuilder<ChatsBloc, ChatsState>(
                   builder: (context, state) {
-                    if (state is ConversationsLoading) {
+                    if (state is ChatsLoading) {
                       return Center(
                         child: CircularProgressIndicator(),
                       );
-                    } else if (state is ConversationsLoaded) {
-                      final conversations = state.conversations.data;
+                    } else if (state is ChatsFetched) {
+                      final chats = state.chats;
                       return ListView.builder(
-                        itemCount: conversations.length,
+                        itemCount: chats.length,
                         itemBuilder: (context, index) {
-                          final conversation = conversations[index];
-                          print(
-                              'Conversation: ${conversation.sender!.name} =>  ${conversation.text}');
+                          final chat = chats[index];
+                          // print(
+                          //     'Conversation: ${conversation.sender!.name} =>  ${conversation.text}');
                           return _buildMessageTile(
-                              conversation.sender!.name,
-                              conversation.text!,
-                              conversation.createdAt.toString(),
-                              conversation.conversationId!);
+                              chat.chatName,
+                              chat.latestMessage.content,
+                              chat.latestMessage.createdAt.toString(),
+                              chat.id,
+                              chat.isGroupChat,
+                              chat.chatName);
                         },
                       );
-                    } else if (state is ConversationsError) {
+                    } else if (state is ChatsFailure) {
                       return Center(
-                        child: Text(state.message),
+                        child: Text('Error Occured: ${state.message}'),
                       );
                     }
                     return Center(child: Text("No conversation found"));
@@ -99,14 +104,18 @@ class _ConversationPageState extends State<ConversationPage> {
         ));
   }
 
-  Widget _buildMessageTile(
-      String name, String message, String time, String conversationId) {
+  Widget _buildMessageTile(String name, String message, String time,
+      String conversationId, bool isGroup, String chatName) {
     return ListTile(
       onTap: () {
         // Navigator.pushNamed(context, "/chatPage");
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ChatPage(conversationId)),
+          MaterialPageRoute(
+              builder: (context) => MessagePage(
+                    conversationId,
+                    chatName: chatName,
+                  )),
         );
       },
       contentPadding: EdgeInsets.symmetric(
@@ -115,8 +124,13 @@ class _ConversationPageState extends State<ConversationPage> {
       ),
       leading: CircleAvatar(
         radius: 30,
-        backgroundImage: NetworkImage(""),
+        child: Text(isGroup ? "G" : name[0].toUpperCase(),
+            style: TextStyle(fontSize: 30)),
       ),
+      // CircleAvatar(
+      //   radius: 30,
+      //   backgroundImage: NetworkImage(""),
+      // ),
       title: Text(name),
       subtitle: Text(
         message,
@@ -124,7 +138,7 @@ class _ConversationPageState extends State<ConversationPage> {
         overflow: TextOverflow.ellipsis,
       ),
       trailing: Text(
-        time,
+        humanizeDateTime(DateTime.parse(time)),
         style: TextStyle(color: Colors.grey),
       ),
     );

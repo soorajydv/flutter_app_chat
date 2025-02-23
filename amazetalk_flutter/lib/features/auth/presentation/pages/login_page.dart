@@ -1,3 +1,4 @@
+import 'package:amazetalk_flutter/app_routes.dart';
 import 'package:amazetalk_flutter/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:amazetalk_flutter/features/auth/presentation/bloc/auth_event.dart';
 import 'package:amazetalk_flutter/features/auth/presentation/bloc/auth_state.dart';
@@ -61,7 +62,8 @@ class _LoginPageState extends State<LoginPage> {
                   return AuthButton(text: "Login", onPressed: _onLogin);
                 }, listener: (context, state) {
                   if (state is AuthSuccess) {
-                    Navigator.pushNamed(context, "/conversationPage");
+                    // AppRoutes.go(AppRoutes.conversations);
+                    Navigator.pushNamed(context, AppRoutes.conversations);
                   } else if (state is AuthFailure) {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(SnackBar(content: Text(state.error)));
@@ -72,7 +74,8 @@ class _LoginPageState extends State<LoginPage> {
                     title: "Donthave an account?",
                     subtitle: "Register",
                     onTap: () {
-                      Navigator.pushNamed(context, "/register");
+                      // Navigator.pushNamed(context, "/register");
+                      AppRoutes.go(AppRoutes.register);
                     })
               ],
             )),

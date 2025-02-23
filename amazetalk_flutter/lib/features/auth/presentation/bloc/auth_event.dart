@@ -13,3 +13,5 @@ class LoginEvent extends AuthEvent {
   final String password;
   LoginEvent({required this.email, required this.password});
 }
+
+final class GetCacheData extends AuthEvent {}

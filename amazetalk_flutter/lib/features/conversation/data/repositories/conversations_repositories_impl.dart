@@ -15,4 +15,9 @@ class ConversationsRepositoriesImpl implements ConversationRepository {
   Future<MessagesEntity> fetchMessages(String conversationId) async {
     return await remoteDataSource.fetchMessages(conversationId);
   }
+
+  @override
+  Future<bool> sendMessage(SendMessageEntity message) async {
+    return await remoteDataSource.sendMessage(message);
+  }
 }

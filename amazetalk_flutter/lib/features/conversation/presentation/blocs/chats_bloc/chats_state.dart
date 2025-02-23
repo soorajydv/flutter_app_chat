@@ -1,0 +1,22 @@
+part of 'chats_bloc.dart';
+
+sealed class ChatsState extends Equatable {
+  const ChatsState();
+
+  @override
+  List<Object> get props => [];
+}
+
+final class ChatsInitial extends ChatsState {}
+
+final class ChatsLoading extends ChatsState {}
+
+final class ChatsFetched extends ChatsState {
+  final List<ChatsEntity> chats;
+  const ChatsFetched(this.chats);
+}
+
+final class ChatsFailure extends ChatsState {
+  final String message;
+  const ChatsFailure([this.message = 'Failed to fetch chats']);
+}

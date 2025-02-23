@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final messages = messagesFromJson(jsonString);
-
 import 'package:amazetalk_flutter/features/conversation/domain/entities/messages_entity.dart';
 
 class MessagesModel extends MessagesEntity {

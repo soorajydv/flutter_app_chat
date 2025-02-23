@@ -12,10 +12,11 @@ final class MessagesInitial extends MessagesState {}
 class MessagesLoading extends MessagesState {}
 
 class MessagesLoaded extends MessagesState {
-  final MessagesEntity conversation;
-  const MessagesLoaded(this.conversation);
+  final List<MessageEntity> messages;
+  final String uid;
+  const MessagesLoaded(this.messages, this.uid);
   @override
-  List<Object> get props => [conversation];
+  List<Object> get props => [messages];
 }
 
 class MessagesError extends MessagesState {

@@ -1,22 +1,31 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../../../auth/data/datasource/auth_local_data_source.dart';
+import '../../../domain/entities/message_entity.dart';
 import '../../../domain/entities/messages_entity.dart';
+import '../../../domain/usecase/chats_usecase.dart';
 import '../../../domain/usecase/fetch_conversations_usecase.dart';
 
 part 'messages_event.dart';
 part 'messages_state.dart';
 
 class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
-  final FetchMessagesUsecase fetchMessagesUsecase;
-  MessagesBloc(this.fetchMessagesUsecase) : super(MessagesInitial()) {
+  final MessagesUsecase fetchMessagesUsecase;
+  final AuthLocalDataSource cache;
+  MessagesBloc(this.fetchMessagesUsecase, this.cache)
+      : super(MessagesInitial()) {
     on<FetchMessages>((event, emit) async {
       emit(MessagesLoading());
       try {
-        final messages = await fetchMessagesUsecase(event.conversationId);
-        emit(MessagesLoaded(messages));
+        final messages = await fetchMessagesUsecase(event.chatId);
+        final uid = await cache.getUserId();
+        if (uid == null) {
+          return emit(MessagesError('No user data found'));
+        }
+        emit(MessagesLoaded(messages, uid));
       } catch (error) {
-        emit(MessagesError("Fail to load messages"));
+        emit(MessagesError("Fail to load messagesx \n$error"));
       }
     });
   }

@@ -1,3 +1,5 @@
+import '../../domain/entities/user_entity.dart';
+
 abstract class AuthState {}
 
 class AuthInitial extends AuthState {}
@@ -12,4 +14,9 @@ class AuthSuccess extends AuthState {
 class AuthFailure extends AuthState {
   final String error;
   AuthFailure({required this.error});
+}
+
+final class CacheDataFetched extends AuthState {
+  final UserEntity user;
+  CacheDataFetched(this.user);
 }
