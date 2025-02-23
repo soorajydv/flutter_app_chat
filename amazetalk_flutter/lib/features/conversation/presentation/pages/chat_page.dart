@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, required this.userId, required this.roomId});
+
+  final String userId;
+  final String roomId;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
