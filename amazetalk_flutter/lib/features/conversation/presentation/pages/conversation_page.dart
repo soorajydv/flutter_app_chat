@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../utils/humanize.dart';
-import 'mesage_page.dart';
+import 'chat_page2.dart';
+// import 'chat_page.dart';
+// import 'mesage_page.dart';
 
 class ConversationPage extends StatefulWidget {
   const ConversationPage({super.key});
@@ -87,7 +89,8 @@ class _ConversationPageState extends State<ConversationPage> {
                               chat.latestMessage.createdAt.toString(),
                               chat.id,
                               chat.isGroupChat,
-                              chat.chatName);
+                              chat.chatName,
+                              state.uid);
                         },
                       );
                     } else if (state is ChatsFailure) {
@@ -105,17 +108,21 @@ class _ConversationPageState extends State<ConversationPage> {
   }
 
   Widget _buildMessageTile(String name, String message, String time,
-      String conversationId, bool isGroup, String chatName) {
+      String conversationId, bool isGroup, String chatName, String uid) {
     return ListTile(
       onTap: () {
         // Navigator.pushNamed(context, "/chatPage");
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => MessagePage(
-                    conversationId,
-                    chatName: chatName,
-                  )),
+            builder: (context) => ChatScreen(
+              roomId: conversationId,
+              userId: uid,
+              chatName: chatName,
+              // conversationId,
+              // chatName: chatName,
+            ),
+          ),
         );
       },
       contentPadding: EdgeInsets.symmetric(

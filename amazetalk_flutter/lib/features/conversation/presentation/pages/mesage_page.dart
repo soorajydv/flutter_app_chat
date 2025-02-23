@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../blocs/messages_bloc/messages_bloc.dart';
+import 'chat_page2.dart';
+// import 'chat_page.dart';
 
 class MessagePage extends StatelessWidget {
   const MessagePage(this.chatId, {super.key, required this.chatName});
@@ -41,6 +43,20 @@ class MessagePage extends StatelessWidget {
             final uid = state.uid;
             return Column(
               children: [
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatScreen(
+                            userId: uid,
+                            roomId: chatId,
+                            chatName: 'Chat Name',
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text('Chat page')),
                 Expanded(
                     child: ListView.builder(
                         padding: EdgeInsets.all(20),
@@ -139,7 +155,9 @@ class MessagePage extends StatelessWidget {
               Icons.send,
               color: Colors.grey,
             ),
-            onTap: () {},
+            onTap: () {
+              //Go to chat page
+            },
           )
         ],
       ),

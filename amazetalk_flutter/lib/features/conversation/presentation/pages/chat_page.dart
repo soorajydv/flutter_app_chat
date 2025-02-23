@@ -1,3 +1,4 @@
+import 'package:amazetalk_flutter/constants/urls.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -18,8 +19,8 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isTyping = false;
 
   // For demo purposes, use fixed user and room IDs.
-  String userId = "user1";
-  String roomId = "room1";
+  // String userId = widget.userId;
+  // String roomId = widget.roomId;
 
   @override
   void initState() {
@@ -28,8 +29,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void connectSocket() {
+    String userId = widget.userId;
+    String roomId = widget.roomId;
     // Replace with your Socket.IO server URL
-    socket = IO.io('http://YOUR_SERVER_URL', <String, dynamic>{
+    socket = IO.io(BACKEND_URL, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });
@@ -86,6 +89,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void sendMessage(String messageText) {
+    String userId = widget.userId;
+    String roomId = widget.roomId;
     if (messageText.trim().isEmpty) return;
 
     // Construct message data (simplified for demo purposes)
@@ -118,11 +123,11 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void startTyping() {
-    socket!.emit('typing', roomId);
+    socket!.emit('typing', widget.roomId);
   }
 
   void stopTyping() {
-    socket!.emit('stop typing', roomId);
+    socket!.emit('stop typing', widget.roomId);
   }
 
   @override

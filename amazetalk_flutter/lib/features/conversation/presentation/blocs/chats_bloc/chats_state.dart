@@ -13,7 +13,8 @@ final class ChatsLoading extends ChatsState {}
 
 final class ChatsFetched extends ChatsState {
   final List<ChatsEntity> chats;
-  const ChatsFetched(this.chats);
+  final String uid;
+  const ChatsFetched(this.chats, this.uid);
 }
 
 final class ChatsFailure extends ChatsState {
