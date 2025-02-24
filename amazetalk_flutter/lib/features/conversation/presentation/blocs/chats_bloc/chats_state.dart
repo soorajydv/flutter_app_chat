@@ -21,3 +21,8 @@ final class ChatsFailure extends ChatsState {
   final String message;
   const ChatsFailure([this.message = 'Failed to fetch chats']);
 }
+
+final class AccessChatFetched extends ChatsState {
+  final AccessChatEntity chat;
+  const AccessChatFetched(this.chat);
+}

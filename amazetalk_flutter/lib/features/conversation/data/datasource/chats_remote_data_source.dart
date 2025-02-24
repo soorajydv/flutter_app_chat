@@ -36,4 +36,19 @@ class ChatsRemoteDataSource {
       throw Exception('Error occured: ${e.toString()}');
     }
   }
+
+  Future<AccessChat> accessChat(String userId) async {
+    try {
+      final response = await _client.post('/chats', data: {'userId': userId});
+
+      print('Response Messages: ${response.data}');
+      if (response.statusCode == 200) {
+        return AccessChat.fromJson(response.data);
+      } else {
+        throw Exception('Failed to access chat');
+      }
+    } catch (e) {
+      throw Exception('Error occured: ${e.toString()}');
+    }
+  }
 }

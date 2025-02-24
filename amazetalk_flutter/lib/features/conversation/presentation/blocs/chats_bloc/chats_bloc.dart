@@ -1,5 +1,4 @@
-import 'package:amazetalk_flutter/features/auth/domain/entities/user_entity.dart';
-import 'package:amazetalk_flutter/features/conversation/data/models/chats_model.dart';
+import 'package:amazetalk_flutter/features/conversation/domain/entities/access_chat.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -12,7 +11,8 @@ part 'chats_state.dart';
 
 class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
   final ChatsUsecase fetchChats;
-  ChatsBloc(this.fetchChats) : super(ChatsInitial()) {
+  final AccessChatUsecase accessChat;
+  ChatsBloc(this.fetchChats, this.accessChat) : super(ChatsInitial()) {
     on<FetchChats>((event, emit) async {
       // try {
       emit(ChatsLoading());
@@ -26,6 +26,12 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
       // } catch (e) {
       // emit(ChatsFailure(e.toString()));
       // }
+    });
+
+    on<AccessChat>((event, emit) async {
+      final chats = await accessChat(event.userId);
+
+      emit(AccessChatFetched(chats));
     });
   }
 }

@@ -1,3 +1,4 @@
+import 'package:amazetalk_flutter/features/conversation/domain/entities/access_chat.dart';
 import 'package:amazetalk_flutter/features/conversation/domain/entities/message_entity.dart';
 
 import '../../domain/repositories/chats_remote_repository.dart';
@@ -13,4 +14,8 @@ class ChatsRepositoriesImpl implements ChatsRepository {
   @override
   Future<List<MessageEntity>> fetchMessage(String chatId) =>
       remoteDataSource.fetchMessages(chatId);
+
+  @override
+  Future<AccessChatEntity> accessChat(String userId) =>
+      remoteDataSource.accessChat(userId);
 }

@@ -1,11 +1,16 @@
+import 'dart:convert';
+
 import 'package:amazetalk_flutter/chat_page.dart';
 import 'package:amazetalk_flutter/features/conversation/presentation/blocs/chats_bloc/chats_bloc.dart';
 import 'package:amazetalk_flutter/features/conversation/presentation/widgets/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../constants/urls.dart';
 import '../../../../utils/humanize.dart';
+import '../../../auth/data/datasource/auth_local_data_source.dart';
 import 'chat_page2.dart';
+import 'package:http/http.dart' as http;
 // import 'chat_page.dart';
 // import 'mesage_page.dart';
 
@@ -17,6 +22,136 @@ class ConversationPage extends StatefulWidget {
 }
 
 class _ConversationPageState extends State<ConversationPage> {
+  bool isSearching = true;
+  final TextEditingController _searchController = TextEditingController();
+  List<dynamic> _results = [];
+  bool _loading = false;
+  bool _error = false;
+
+  /// Calls the /fetchUsers API using the provided search query.
+  Future<void> _fetchUsers(String query) async {
+    setState(() {
+      _loading = true;
+      _error = false;
+    });
+    final token = await AuthLocalDataSource().getToken();
+    try {
+      // Adjust the endpoint and query parameter as needed.
+      final response = await http.get(
+        Uri.parse('$BACKEND_URL/user/fetchUsers?search=$query'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Search results: ${data}');
+        setState(() {
+          _results = data;
+        });
+      } else {
+        print('Error code: ${response.statusCode}');
+        setState(() {
+          _error = true;
+        });
+      }
+    } catch (e) {
+      print('Error: ${e}');
+      setState(() {
+        _error = true;
+      });
+    }
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  /// Displays the search results in a popup dialog.
+  void _showResultsPopup() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Search Results'),
+          content: _loading
+              ? const Center(child: CircularProgressIndicator())
+              : Container(
+                  width: double.maxFinite,
+                  child: _results.isEmpty
+                      ? const Text('No users found.')
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: _results.length,
+                          itemBuilder: (context, index) {
+                            final user = _results[index];
+                            final userId = user['_id'];
+                            return BlocListener<ChatsBloc, ChatsState>(
+                              listener: (context, state) {
+                                if (state is AccessChatFetched) {
+                                  // pop searched window
+                                  Navigator.pop(context);
+
+                                  //Fetch conversations
+                                  BlocProvider.of<ChatsBloc>(context)
+                                      .add(FetchChats());
+
+                                  // Clear search field
+                                  _searchController.clear();
+                                  setState(() {
+                                    isSearching = false;
+                                  });
+
+                                  // Go to chat page
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatScreen(
+                                        roomId: state.chat.id,
+                                        userId: userId,
+                                        chatName: state.chat.chatName,
+                                        // conversationId,
+                                        // chatName: chatName,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Card(
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                child: ListTile(
+                                  onTap: () {
+                                    BlocProvider.of<ChatsBloc>(context)
+                                        .add(AccessChat(userId));
+                                  },
+                                  leading: CircleAvatar(
+                                    backgroundImage: user['image'] != null
+                                        ? NetworkImage(
+                                            'https://akm-img-a-in.tosshub.com/indiatoday/images/story/202410/srk-discusses-adventure-film-with-amar-kaushik-after-king-and-pathaan-2-report-034431846-3x4.jpg?VersionId=4ftMrJ_hzQEQF1NRKWt4JQ8yo2YJBSWX')
+                                        : null,
+                                    child: user['image'] == null
+                                        ? Text((user['name'][0]).toUpperCase())
+                                        : null,
+                                  ),
+                                  title: Text(user['name'] ?? ''),
+                                  subtitle: Text(user['email'] ?? ''),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            )
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -24,11 +159,53 @@ class _ConversationPageState extends State<ConversationPage> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         drawer: AppDrawer(),
         appBar: AppBar(
-          title: Text('Conversations'),
+          title: isSearching
+              ? TextField(
+                  controller: _searchController,
+                  autofocus: true,
+                  decoration: const InputDecoration(
+                    hintText: 'Search Users...',
+                    border: InputBorder.none,
+                  ),
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: (value) {
+                    final query = value.trim();
+                    if (query.isNotEmpty) {
+                      _fetchUsers(query).then((_) => _showResultsPopup());
+                    }
+                  },
+                )
+              : const Text('Conversations'),
+          actions: [
+            isSearching
+                ? IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() {
+                        isSearching = false;
+                      });
+                    },
+                  )
+                : IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () {
+                      setState(() {
+                        isSearching = true;
+                      });
+                    },
+                  ),
+          ],
           centerTitle: false,
           backgroundColor: Colors.transparent,
           toolbarHeight: 70,
@@ -77,6 +254,7 @@ class _ConversationPageState extends State<ConversationPage> {
                       );
                     } else if (state is ChatsFetched) {
                       final chats = state.chats;
+
                       return ListView.builder(
                         itemCount: chats.length,
                         itemBuilder: (context, index) {
@@ -84,12 +262,16 @@ class _ConversationPageState extends State<ConversationPage> {
                           // print(
                           //     'Conversation: ${conversation.sender!.name} =>  ${conversation.text}');
                           return _buildMessageTile(
-                              chat.chatName,
+                              chat.isGroupChat
+                                  ? chat.chatName
+                                  : (chat.users.first.id != state.uid
+                                          ? chat.users.first
+                                          : chat.users[1])
+                                      .name,
                               chat.latestMessage.content,
                               chat.latestMessage.createdAt.toString(),
                               chat.id,
                               chat.isGroupChat,
-                              chat.chatName,
                               state.uid);
                         },
                       );
@@ -108,7 +290,7 @@ class _ConversationPageState extends State<ConversationPage> {
   }
 
   Widget _buildMessageTile(String name, String message, String time,
-      String conversationId, bool isGroup, String chatName, String uid) {
+      String conversationId, bool isGroup, String uid) {
     return ListTile(
       onTap: () {
         // Navigator.pushNamed(context, "/chatPage");
@@ -118,7 +300,7 @@ class _ConversationPageState extends State<ConversationPage> {
             builder: (context) => ChatScreen(
               roomId: conversationId,
               userId: uid,
-              chatName: chatName,
+              chatName: name,
               // conversationId,
               // chatName: chatName,
             ),
@@ -158,7 +340,7 @@ class _ConversationPageState extends State<ConversationPage> {
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundImage: NetworkImage(""),
+            // backgroundImage: NetworkImage(""),
           ),
           SizedBox(
             height: 3,

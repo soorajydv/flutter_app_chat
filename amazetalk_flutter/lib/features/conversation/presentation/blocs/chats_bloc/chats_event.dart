@@ -8,3 +8,9 @@ sealed class ChatsEvent extends Equatable {
 }
 
 final class FetchChats extends ChatsEvent {}
+
+final class AccessChat extends ChatsEvent {
+  final String userId;
+
+  const AccessChat(this.userId);
+}

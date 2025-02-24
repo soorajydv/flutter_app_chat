@@ -65,8 +65,8 @@ class MyApp extends StatelessWidget {
         //   ),
         // ),
         BlocProvider(
-          create: (_) => ChatsBloc(ChatsUsecase(ChatsRepositoriesImpl(
-              remoteDataSource: ChatsRemoteDataSource(httpClient)))),
+          create: (_) => ChatsBloc(ChatsUsecase(chatsRepository),
+              AccessChatUsecase(chatsRepository)),
         ),
         BlocProvider(
           create: (_) =>

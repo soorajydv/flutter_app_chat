@@ -1,3 +1,4 @@
+import 'package:amazetalk_flutter/features/conversation/domain/entities/access_chat.dart';
 import 'package:amazetalk_flutter/features/conversation/domain/entities/message_entity.dart';
 
 import '../entities/chats_entity.dart';
@@ -20,5 +21,15 @@ class MessagesUsecase {
 
   Future<List<MessageEntity>> call(String chatId) async {
     return repository.fetchMessage(chatId);
+  }
+}
+
+class AccessChatUsecase {
+  final ChatsRepository repository;
+
+  AccessChatUsecase(this.repository);
+
+  Future<AccessChatEntity> call(String userId) async {
+    return repository.accessChat(userId);
   }
 }

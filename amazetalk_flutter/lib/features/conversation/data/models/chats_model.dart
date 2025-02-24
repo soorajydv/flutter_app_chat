@@ -1,5 +1,6 @@
 // import 'dart:convert';
 
+import 'package:amazetalk_flutter/features/conversation/domain/entities/access_chat.dart';
 import 'package:amazetalk_flutter/features/conversation/domain/entities/chats_entity.dart';
 
 class ChatsModel extends ChatsEntity {
@@ -63,4 +64,15 @@ class ChatsModel extends ChatsEntity {
   //   }
   //   return result;
   // }
+}
+
+class AccessChat extends AccessChatEntity {
+  AccessChat(
+      {required super.id, required super.chatName, required super.isGroupChat});
+
+  factory AccessChat.fromJson(Map<String, dynamic> json) => AccessChat(
+        id: json["_id"],
+        chatName: json["chatName"],
+        isGroupChat: json["isGroupChat"],
+      );
 }
