@@ -26,3 +26,13 @@ final class AccessChatFetched extends ChatsState {
   final AccessChatEntity chat;
   const AccessChatFetched(this.chat);
 }
+
+final class GroupInfoLoading extends ChatsState {
+  const GroupInfoLoading();
+}
+
+final class GroupInfoFetched extends ChatsState {
+  final GroupInfoEntity info;
+  final String uid;
+  const GroupInfoFetched(this.info, this.uid);
+}

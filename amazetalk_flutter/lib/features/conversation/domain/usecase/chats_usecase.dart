@@ -1,4 +1,5 @@
 import 'package:amazetalk_flutter/features/conversation/domain/entities/access_chat.dart';
+import 'package:amazetalk_flutter/features/conversation/domain/entities/group_info.dart';
 import 'package:amazetalk_flutter/features/conversation/domain/entities/message_entity.dart';
 
 import '../entities/chats_entity.dart';
@@ -31,5 +32,15 @@ class AccessChatUsecase {
 
   Future<AccessChatEntity> call(String userId) async {
     return repository.accessChat(userId);
+  }
+}
+
+class GroupInfoUsecase {
+  final ChatsRepository repository;
+
+  GroupInfoUsecase(this.repository);
+
+  Future<GroupInfoEntity> call(String groupId) async {
+    return repository.groupInfo(groupId);
   }
 }

@@ -14,3 +14,9 @@ final class AccessChat extends ChatsEvent {
 
   const AccessChat(this.userId);
 }
+
+final class GroupInfo extends ChatsEvent {
+  final String groupId;
+
+  const GroupInfo(this.groupId);
+}

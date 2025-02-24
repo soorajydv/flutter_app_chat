@@ -3,11 +3,15 @@ import 'dart:convert';
 
 import 'package:amazetalk_flutter/constants/urls.dart';
 import 'package:amazetalk_flutter/features/auth/data/datasource/auth_local_data_source.dart';
+import 'package:amazetalk_flutter/widgets/loader.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:http/http.dart' as http;
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/foundation.dart' as foundation;
+
+import '../blocs/chats_bloc/chats_bloc.dart';
 
 const String URL = BACKEND_URL; // Replace with your server URL
 
@@ -15,11 +19,13 @@ class ChatScreen extends StatefulWidget {
   final String userId;
   final String roomId;
   final String chatName;
+  final bool isGroupChat;
   const ChatScreen(
       {Key? key,
       required this.userId,
       required this.roomId,
-      required this.chatName})
+      required this.chatName,
+      required this.isGroupChat})
       : super(key: key);
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -37,9 +43,6 @@ class _ChatScreenState extends State<ChatScreen> {
   bool showAlert = false;
   Timer? typingTimer; // Timer to manage stop typing event
   bool isTyping = false; // Tracks whether we are currently in "typing" state
-
-  // Optionally store group data if needed
-  dynamic groupData;
 
   @override
   void initState() {
@@ -239,37 +242,46 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // Show group information in a modal dialog.
   void showGroupInfo() {
+    // call bloc to fetch Group Info
+    BlocProvider.of<ChatsBloc>(context).add(GroupInfo(widget.roomId));
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Group Info'),
-          content: groupData != null
-              ? SizedBox(
+          content: BlocBuilder<ChatsBloc, ChatsState>(
+            builder: (context, state) {
+              if (state is GroupInfoFetched) {
+                final info = state.info;
+                return SizedBox(
                   width: double.maxFinite,
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: groupData['userMappings'].length,
+                    itemCount: info.userMappings.length,
                     itemBuilder: (context, index) {
-                      final userMapping = groupData['userMappings'][index];
+                      final user = info.userMappings[index];
+                      final userImage = user.userImage;
+                      final username = user.username;
                       return ListTile(
                         leading: CircleAvatar(
-                          backgroundImage: userMapping['userImage'] != null
-                              ? NetworkImage(userMapping['userImage'])
+                          backgroundImage: userImage != null
+                              ? NetworkImage(userImage)
                               : null,
-                          child: userMapping['userImage'] == null
-                              ? Text(userMapping['username'][0])
+                          child: userImage == null
+                              ? Text(username[0].toUpperCase())
                               : null,
                         ),
-                        title: Text(userMapping['username']),
-                        subtitle: userMapping['userId'] == groupData['adminId']
-                            ? const Text('Admin')
-                            : null,
+                        title: Text(user.getDisplayName(state.uid)),
+                        subtitle: user.isAdmin ? const Text('Admin') : null,
                       );
                     },
                   ),
-                )
-              : const Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              return Loader();
+            },
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -295,14 +307,24 @@ class _ChatScreenState extends State<ChatScreen> {
     String userId = widget.userId;
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          // This callback is triggered when the AppBar back button is tapped.
+          onPressed: () {
+            BlocProvider.of<ChatsBloc>(context).add(FetchChats());
+            Navigator.of(context).pop();
+          },
+        ),
         title: Text(widget.chatName),
-        actions: [
-          // Show group info button (if applicable)
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: showGroupInfo,
-          ),
-        ],
+        actions: widget.isGroupChat
+            ? [
+                // Show group info button (if applicable)
+                IconButton(
+                  icon: const Icon(Icons.info_outline),
+                  onPressed: showGroupInfo,
+                ),
+              ]
+            : null,
       ),
       body: Column(
         children: [

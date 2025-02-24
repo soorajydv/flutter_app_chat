@@ -1,3 +1,4 @@
+import 'package:amazetalk_flutter/features/conversation/data/models/group_info.dart';
 import 'package:amazetalk_flutter/features/conversation/domain/entities/access_chat.dart';
 import 'package:amazetalk_flutter/features/conversation/domain/entities/message_entity.dart';
 
@@ -18,4 +19,8 @@ class ChatsRepositoriesImpl implements ChatsRepository {
   @override
   Future<AccessChatEntity> accessChat(String userId) =>
       remoteDataSource.accessChat(userId);
+
+  @override
+  Future<GroupInfo> groupInfo(String groupId) =>
+      remoteDataSource.groupInfo(groupId);
 }

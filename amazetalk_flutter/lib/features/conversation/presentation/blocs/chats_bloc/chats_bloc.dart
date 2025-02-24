@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 
 import '../../../../auth/data/datasource/auth_local_data_source.dart';
 import '../../../domain/entities/chats_entity.dart';
+import '../../../domain/entities/group_info.dart';
 import '../../../domain/usecase/chats_usecase.dart';
 
 part 'chats_event.dart';
@@ -12,7 +13,9 @@ part 'chats_state.dart';
 class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
   final ChatsUsecase fetchChats;
   final AccessChatUsecase accessChat;
-  ChatsBloc(this.fetchChats, this.accessChat) : super(ChatsInitial()) {
+  final GroupInfoUsecase groupInfo;
+  ChatsBloc(this.fetchChats, this.accessChat, this.groupInfo)
+      : super(ChatsInitial()) {
     on<FetchChats>((event, emit) async {
       // try {
       emit(ChatsLoading());
@@ -32,6 +35,14 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
       final chats = await accessChat(event.userId);
 
       emit(AccessChatFetched(chats));
+    });
+
+    on<GroupInfo>((event, emit) async {
+      emit(GroupInfoLoading());
+      final info = await groupInfo(event.groupId);
+      final uid = await AuthLocalDataSource().getUserId();
+
+      emit(GroupInfoFetched(info, uid ?? ''));
     });
   }
 }

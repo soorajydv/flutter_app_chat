@@ -52,6 +52,7 @@ class MessagePage extends StatelessWidget {
                             userId: uid,
                             roomId: chatId,
                             chatName: 'Chat Name',
+                            isGroupChat: false,
                           ),
                         ),
                       );

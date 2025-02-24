@@ -1,4 +1,5 @@
 import 'package:amazetalk_flutter/features/conversation/data/models/chats_model.dart';
+import 'package:amazetalk_flutter/features/conversation/data/models/group_info.dart';
 
 import '../../../../services/dio_client.dart';
 import '../models/message_model.dart';
@@ -46,6 +47,22 @@ class ChatsRemoteDataSource {
         return AccessChat.fromJson(response.data);
       } else {
         throw Exception('Failed to access chat');
+      }
+    } catch (e) {
+      throw Exception('Error occured: ${e.toString()}');
+    }
+  }
+
+  Future<GroupInfo> groupInfo(String groupId) async {
+    try {
+      final response =
+          await _client.post('/chats/groupInfo', data: {'groupId': groupId});
+
+      print('Response GroupInfo: ${response.data}');
+      if (response.statusCode == 200) {
+        return GroupInfo.fromJson(response.data);
+      } else {
+        throw Exception('Failed to access GroupInfo');
       }
     } catch (e) {
       throw Exception('Error occured: ${e.toString()}');

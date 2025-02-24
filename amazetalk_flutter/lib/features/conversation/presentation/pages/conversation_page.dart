@@ -22,7 +22,7 @@ class ConversationPage extends StatefulWidget {
 }
 
 class _ConversationPageState extends State<ConversationPage> {
-  bool isSearching = true;
+  bool isSearching = false;
   final TextEditingController _searchController = TextEditingController();
   List<dynamic> _results = [];
   bool _loading = false;
@@ -110,6 +110,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                         roomId: state.chat.id,
                                         userId: userId,
                                         chatName: state.chat.chatName,
+                                        isGroupChat: state.chat.isGroupChat,
                                         // conversationId,
                                         // chatName: chatName,
                                       ),
@@ -154,8 +155,8 @@ class _ConversationPageState extends State<ConversationPage> {
 
   @override
   void initState() {
-    super.initState();
     BlocProvider.of<ChatsBloc>(context).add(FetchChats());
+    super.initState();
   }
 
   @override
@@ -301,6 +302,7 @@ class _ConversationPageState extends State<ConversationPage> {
               roomId: conversationId,
               userId: uid,
               chatName: name,
+              isGroupChat: isGroup,
               // conversationId,
               // chatName: chatName,
             ),
