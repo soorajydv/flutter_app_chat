@@ -80,6 +80,7 @@ class MyApp extends StatelessWidget {
           title: 'Flutter Demo',
           // Set initial route
           initialRoute: AppRoutes.loaderPage,
+          debugShowCheckedModeBanner: false,
 
           // _haveToken == null
           //     ? AppRoutes.loaderPage
