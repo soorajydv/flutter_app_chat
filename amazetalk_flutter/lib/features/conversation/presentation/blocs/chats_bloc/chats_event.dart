@@ -20,3 +20,10 @@ final class GroupInfo extends ChatsEvent {
 
   const GroupInfo(this.groupId);
 }
+
+final class AddMemberToGroup extends ChatsEvent {
+  final String userId;
+  final String groupId;
+
+  const AddMemberToGroup(this.userId, this.groupId);
+}

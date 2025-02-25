@@ -68,4 +68,22 @@ class ChatsRemoteDataSource {
       throw Exception('Error occured: ${e.toString()}');
     }
   }
+
+  Future<bool> addMemberToGroup(String groupId, String userId) async {
+    try {
+      final response = await _client.put('/chats/addMember', data: {
+        'groupId': groupId,
+        'usersToAdd': [userId]
+      });
+
+      print('Response Add member to group: ${response.data}');
+      if (response.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Catch at data source');
+      return false;
+    }
+  }
 }

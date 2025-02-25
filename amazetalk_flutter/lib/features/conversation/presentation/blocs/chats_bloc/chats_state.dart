@@ -36,3 +36,7 @@ final class GroupInfoFetched extends ChatsState {
   final String uid;
   const GroupInfoFetched(this.info, this.uid);
 }
+
+final class MemberAddedToGroup extends ChatsState {}
+
+final class MemberAddedToGroupFailed extends ChatsState {}

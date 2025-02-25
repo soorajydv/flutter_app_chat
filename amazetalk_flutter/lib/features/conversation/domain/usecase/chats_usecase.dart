@@ -44,3 +44,13 @@ class GroupInfoUsecase {
     return repository.groupInfo(groupId);
   }
 }
+
+class AddMemberToGroupUsecase {
+  final ChatsRepository repository;
+
+  AddMemberToGroupUsecase(this.repository);
+
+  Future<bool> call(String groupId, String userId) async {
+    return repository.addMemberToGroup(groupId, userId);
+  }
+}

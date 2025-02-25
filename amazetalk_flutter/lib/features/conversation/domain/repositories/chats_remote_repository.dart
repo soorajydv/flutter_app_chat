@@ -9,6 +9,7 @@ abstract class ChatsRepository {
   Future<List<MessageEntity>> fetchMessage(String chatId);
   Future<AccessChatEntity> accessChat(String userId);
   Future<GroupInfoEntity> groupInfo(String groupId);
+  Future<bool> addMemberToGroup(String groupId, String userId);
   // Future<MessagesEntity> fetchMessages(String conversationId);
   // Future<bool> sendMessage(SendMessageEntity message);
 }

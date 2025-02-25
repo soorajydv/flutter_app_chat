@@ -14,7 +14,9 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
   final ChatsUsecase fetchChats;
   final AccessChatUsecase accessChat;
   final GroupInfoUsecase groupInfo;
-  ChatsBloc(this.fetchChats, this.accessChat, this.groupInfo)
+  final AddMemberToGroupUsecase addMemberToGroup;
+  ChatsBloc(
+      this.fetchChats, this.accessChat, this.groupInfo, this.addMemberToGroup)
       : super(ChatsInitial()) {
     on<FetchChats>((event, emit) async {
       // try {
@@ -41,8 +43,20 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
       emit(GroupInfoLoading());
       final info = await groupInfo(event.groupId);
       final uid = await AuthLocalDataSource().getUserId();
-
+// addMember
       emit(GroupInfoFetched(info, uid ?? ''));
+    });
+
+    on<AddMemberToGroup>((event, emit) async {
+      try {
+        final memberAdded = await addMemberToGroup(event.groupId, event.userId);
+        memberAdded
+            ? emit(MemberAddedToGroup())
+            : emit(MemberAddedToGroupFailed());
+      } catch (e) {
+        print('Catch at BLOC');
+        emit(MemberAddedToGroupFailed());
+      }
     });
   }
 }

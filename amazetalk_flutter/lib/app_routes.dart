@@ -9,9 +9,9 @@ import 'main.dart';
 // Define a class to store your routes
 class AppRoutes {
   // Define a GlobalKey to access the Navigator directly
-  static const String login = '/login';
+  static const String login = '/';
   static const String register = '/register';
-  static const String conversations = '/';
+  static const String conversations = '/conversation';
   static const String loaderPage = '/loaderPage';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {

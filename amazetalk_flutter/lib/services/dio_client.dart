@@ -28,6 +28,10 @@ class DioClient {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        validateStatus: (status) {
+          return status != null &&
+              status < 500; // Accept all statuses below 500
+        },
       ));
 
       // Add interceptors for logging and error handling
@@ -52,26 +56,40 @@ class DioClient {
           return handler.next(response);
         },
         onError: (DioException error, handler) {
-          if (error.response?.statusCode == 401) {
-            // Handle unauthorized error
-            print("Unauthorized errorx");
-            if (navigatorKey.currentContext != null) {
-              print("Navigator key is not null");
-              Navigator.of(navigatorKey.currentContext!)
-                  .pushNamedAndRemoveUntil(
-                AppRoutes.login,
-                (route) => false,
-              );
-              return;
-              // return handler.resolve(Response(
-              //   requestOptions: error.requestOptions,
-              //   data: error.response?.data,
-              //   statusCode: error.response?.statusCode,
-              //   statusMessage: error.response?.statusMessage,
-              // ));
+          if (error.response != null) {
+            if (error.response?.statusCode == 401) {
+              // Handle unauthorized error
+              print("Unauthorized errorx");
+              if (navigatorKey.currentContext != null) {
+                print("Navigator key is not null");
+                Navigator.of(navigatorKey.currentContext!)
+                    .pushNamedAndRemoveUntil(
+                  AppRoutes.login,
+                  (route) => false,
+                );
+                return;
+                // return handler.resolve(Response(
+                //   requestOptions: error.requestOptions,
+                //   data: error.response?.data,
+                //   statusCode: error.response?.statusCode,
+                //   statusMessage: error.response?.statusMessage,
+                // ));
+              }
+              print('No context');
+              // AppRoutes.go(AppRoutes.login);
             }
-            print('No context');
-            // AppRoutes.go(AppRoutes.login);
+
+            if (error.response?.statusCode == 400) {
+              // Handle unauthorized error
+              print("Bad Request ");
+
+              return handler.resolve(Response(
+                requestOptions: error.requestOptions,
+                data: error.response?.data,
+                statusCode: error.response?.statusCode,
+                statusMessage: error.response?.statusMessage,
+              ));
+            }
           }
           print("Error: ${error.message}");
           return handler.next(error); // You can customize error handling here

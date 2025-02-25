@@ -7,6 +7,8 @@ import 'package:amazetalk_flutter/features/auth/presentation/widgets/login_promp
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app_routes.dart';
+
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -69,7 +71,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   return AuthButton(text: "Register", onPressed: _onRegister);
                 }, listener: (context, state) {
                   if (state is AuthSuccess) {
-                    Navigator.pushNamed(context, "/login");
+                    AppRoutes.go(AppRoutes.login);
                   } else if (state is AuthFailure) {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(SnackBar(content: Text(state.error)));
@@ -81,7 +83,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     title: "Already have an account?",
                     subtitle: "Login",
                     onTap: () {
-                      Navigator.pushNamed(context, "/login");
+                      AppRoutes.go(AppRoutes.login);
                     })
               ],
             )),

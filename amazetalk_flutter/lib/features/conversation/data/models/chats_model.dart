@@ -38,7 +38,7 @@ class ChatsModel extends ChatsEntity {
   }
 
   static List<ChatsModel> fromResponse(List<dynamic> data) =>
-      data.map((chat) => ChatsModel.fromJson(chat)).toList();
+      data.map((chat) => ChatsModel.fromJson(chat)).toList().reversed.toList();
 
   // factory ChatsModel.fromJson(Map<String, dynamic> json) {
   //   return ChatsModel(

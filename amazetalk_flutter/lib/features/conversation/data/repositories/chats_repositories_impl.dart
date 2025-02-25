@@ -23,4 +23,8 @@ class ChatsRepositoriesImpl implements ChatsRepository {
   @override
   Future<GroupInfo> groupInfo(String groupId) =>
       remoteDataSource.groupInfo(groupId);
+
+  @override
+  Future<bool> addMemberToGroup(String groupId, String userId) =>
+      remoteDataSource.addMemberToGroup(groupId, userId);
 }

@@ -28,7 +28,7 @@ class AuthRemoteDataSource {
 
         // ✅ Check if user and token exist
         final result = UserModel.fromJson(jsonResponse);
-        cache.save(result);
+        await cache.save(result);
         return result;
       } else if (response.statusCode == 400) {
         throw Exception(

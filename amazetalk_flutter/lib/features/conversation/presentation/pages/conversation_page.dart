@@ -153,6 +153,66 @@ class _ConversationPageState extends State<ConversationPage> {
     );
   }
 
+  /// Displays _showAddGroupForm in a popup dialog.
+  void showCreateGroupDialog() {
+    final TextEditingController _groupNameController = TextEditingController();
+    final _formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Create a New Group'),
+          content: Form(
+            key: _formKey,
+            child: TextFormField(
+              controller: _groupNameController,
+              decoration: const InputDecoration(
+                labelText: 'Group Name',
+                hintText: 'Enter group name',
+              ),
+              validator: (value) {
+                if (value == null || value.trim().length <= 1) {
+                  return 'Group name must be at least 2 characters';
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  // Handle the valid group name (e.g., API call)
+                  final groupName = _groupNameController.text.trim();
+                  final token = await AuthLocalDataSource().getToken();
+                  print('Token: $token');
+                  final response = await http.post(
+                      Uri.parse('$BACKEND_URL/chats/createGroup'),
+                      headers: {
+                        'Authorization': 'Bearer $token',
+                        'Content-Type': 'application/json',
+                      },
+                      body: jsonEncode({'users': [], 'name': groupName}));
+                  if (response.statusCode == 200) {
+                    print("Group Created: ${groupName}");
+                    BlocProvider.of<ChatsBloc>(context).add(FetchChats());
+                  }
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Create'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     BlocProvider.of<ChatsBloc>(context).add(FetchChats());
@@ -206,6 +266,9 @@ class _ConversationPageState extends State<ConversationPage> {
                       });
                     },
                   ),
+            IconButton(
+                icon: const Icon(Icons.group_add),
+                onPressed: showCreateGroupDialog),
           ],
           centerTitle: false,
           backgroundColor: Colors.transparent,

@@ -68,7 +68,8 @@ class MyApp extends StatelessWidget {
           create: (_) => ChatsBloc(
               ChatsUsecase(chatsRepository),
               AccessChatUsecase(chatsRepository),
-              GroupInfoUsecase(chatsRepository)),
+              GroupInfoUsecase(chatsRepository),
+              AddMemberToGroupUsecase(chatsRepository)),
         ),
         BlocProvider(
           create: (_) =>

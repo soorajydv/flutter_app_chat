@@ -44,6 +44,143 @@ class _ChatScreenState extends State<ChatScreen> {
   Timer? typingTimer; // Timer to manage stop typing event
   bool isTyping = false; // Tracks whether we are currently in "typing" state
 
+// Search members
+  bool isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
+  List<dynamic> _results = [];
+  bool _loading = false;
+  bool _error = false;
+
+  /// Calls the /fetchUsers API using the provided search query.
+  Future<void> _fetchUsers(String query) async {
+    setState(() {
+      _loading = true;
+      _error = false;
+    });
+    final token = await AuthLocalDataSource().getToken();
+    try {
+      // Adjust the endpoint and query parameter as needed.
+      final response = await http.get(
+        Uri.parse('$BACKEND_URL/user/fetchUsers?search=$query'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Search results: ${data}');
+        setState(() {
+          _results = data;
+        });
+      } else {
+        print('Error code: ${response.statusCode}');
+        setState(() {
+          _error = true;
+        });
+      }
+    } catch (e) {
+      print('Error: ${e}');
+      setState(() {
+        _error = true;
+      });
+    }
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  /// Displays the search results in a popup dialog.
+  void _showResultsPopup() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Search Results'),
+          content: _loading
+              ? const Center(child: CircularProgressIndicator())
+              : Container(
+                  width: double.maxFinite,
+                  child: _results.isEmpty
+                      ? const Text('No users found.')
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: _results.length,
+                          itemBuilder: (context, index) {
+                            final user = _results[index];
+                            final userId = user['_id'];
+                            return BlocListener<ChatsBloc, ChatsState>(
+                              listener: (context, state) {
+                                if (state is MemberAddedToGroup ||
+                                    state is MemberAddedToGroupFailed) {
+                                  // pop searched window
+                                  Navigator.pop(context);
+
+                                  // Clear search field
+                                  _searchController.clear();
+                                  setState(() {
+                                    isSearching = false;
+                                  });
+
+                                  // Show scaffold if add member success / failed
+
+                                  if (state is MemberAddedToGroup) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                'Member added to this Group',
+                                                style: TextStyle(
+                                                    color: Colors.white)),
+                                            backgroundColor: Colors.red));
+                                  } else if (state
+                                      is MemberAddedToGroupFailed) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                'Failed to add member to this Group',
+                                                style: TextStyle(
+                                                    color: Colors.white)),
+                                            backgroundColor: Colors.red));
+                                  }
+                                }
+                              },
+                              child: Card(
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                child: ListTile(
+                                  onTap: () {
+                                    // Add member to this chat
+                                    BlocProvider.of<ChatsBloc>(context).add(
+                                        AddMemberToGroup(
+                                            userId, widget.roomId));
+                                  },
+                                  leading: CircleAvatar(
+                                    backgroundImage: user['image'] != null
+                                        ? NetworkImage(
+                                            'https://akm-img-a-in.tosshub.com/indiatoday/images/story/202410/srk-discusses-adventure-film-with-amar-kaushik-after-king-and-pathaan-2-report-034431846-3x4.jpg?VersionId=4ftMrJ_hzQEQF1NRKWt4JQ8yo2YJBSWX')
+                                        : null,
+                                    child: user['image'] == null
+                                        ? Text((user['name'][0]).toUpperCase())
+                                        : null,
+                                  ),
+                                  title: Text(user['name'] ?? ''),
+                                  subtitle: Text(user['email'] ?? ''),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            )
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -299,6 +436,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _messageController.dispose();
     _scrollController.dispose();
     socket?.disconnect();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -315,16 +453,54 @@ class _ChatScreenState extends State<ChatScreen> {
             Navigator.of(context).pop();
           },
         ),
-        title: Text(widget.chatName),
+        title: isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Search Users...',
+                  border: InputBorder.none,
+                ),
+                textInputAction: TextInputAction.search,
+                onSubmitted: (value) {
+                  final query = value.trim();
+                  if (query.isNotEmpty) {
+                    _fetchUsers(query).then((_) => _showResultsPopup());
+                  }
+                },
+              )
+            : Text(widget.chatName),
         actions: widget.isGroupChat
             ? [
-                // Show group info button (if applicable)
+                isSearching
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            isSearching = false;
+                          });
+                        },
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.person_add_rounded),
+                        onPressed: () {
+                          setState(() {
+                            isSearching = true;
+                          });
+                        },
+                      ),
+
+                // Show group info button
                 IconButton(
                   icon: const Icon(Icons.info_outline),
                   onPressed: showGroupInfo,
                 ),
               ]
             : null,
+        centerTitle: false,
+        backgroundColor: Colors.transparent,
+        toolbarHeight: 70,
       ),
       body: Column(
         children: [
