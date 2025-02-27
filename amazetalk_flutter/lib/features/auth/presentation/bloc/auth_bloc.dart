@@ -27,7 +27,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      await registerUsecase.call(event.username, event.email, event.password);
+      if (event.imageFile == null) {
+        return emit(AuthFailure(error: "No image file chosen"));
+      }
+      await registerUsecase(
+          event.username, event.email, event.password, event.imageFile!);
       emit(AuthSuccess(message: "Registration Successful"));
     } catch (e) {
       emit(AuthFailure(error: "Registration Failed")); // ✅ Fixed Typo

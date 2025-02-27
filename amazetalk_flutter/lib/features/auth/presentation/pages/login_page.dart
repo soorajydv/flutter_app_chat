@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
                     hint: "Password",
                     icon: Icons.lock,
                     controller: _passwordController),
-                SizedBox(height: 20),
+                SizedBox(height: 60),
                 BlocConsumer<AuthBloc, AuthState>(builder: (context, state) {
                   if (state is AuthLoading) {
                     return Center(
@@ -74,8 +74,8 @@ class _LoginPageState extends State<LoginPage> {
                     title: "Donthave an account?",
                     subtitle: "Register",
                     onTap: () {
-                      // Navigator.pushNamed(context, "/register");
-                      AppRoutes.go(AppRoutes.register);
+                      Navigator.pushNamed(context, AppRoutes.register);
+                      // AppRoutes.go(AppRoutes.register);
                     })
               ],
             )),

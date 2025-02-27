@@ -107,9 +107,9 @@ class DioClient {
     }
   }
 
-  Future<Response> post(String path, {Map<String, dynamic>? data}) async {
+  Future<Response> post(String path, {Object? data, Options? options}) async {
     try {
-      return await dio.post(path, data: data);
+      return await dio.post(path, data: data, options: options);
     } catch (e) {
       rethrow;
     }

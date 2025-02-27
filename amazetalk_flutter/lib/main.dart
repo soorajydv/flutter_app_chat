@@ -32,16 +32,11 @@ void main() {
 
   // ✅ Correctly initialize Auth Dependencies
 
-  final authRepository = AuthRepositoryImpl(
-      authRemoteDataSource: AuthRemoteDataSource(AuthLocalDataSource()));
-
-  runApp(MyApp(authRepository: authRepository));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final AuthRepositoryImpl authRepository;
-
-  const MyApp({super.key, required this.authRepository});
+  const MyApp({super.key});
 
   // void checkToken() async {
   @override
@@ -51,6 +46,10 @@ class MyApp extends StatelessWidget {
 
     final chatsRepository = ChatsRepositoriesImpl(
         remoteDataSource: ChatsRemoteDataSource(httpClient));
+
+    final authRepository = AuthRepositoryImpl(
+        authRemoteDataSource:
+            AuthRemoteDataSource(AuthLocalDataSource(), httpClient));
 
     return MultiBlocProvider(
       providers: [
