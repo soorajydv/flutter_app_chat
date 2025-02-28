@@ -3,8 +3,8 @@ import getMessagesBetweenUsers, { sendMessage, getMessageByConversation } from "
 
 export const sendNewMessage = async (req: Request, res: Response) => {
     try {
-        const { receiverId, text } = req.body;
-        const message = await sendMessage(req.user!.id, receiverId, text);
+        const { receiverId, content } = req.body;
+        const message = await sendMessage(req.user!.id, receiverId, content);
         res.json(message);
     } catch (error) {
         res.status(500).json({ message: "Error sending message", error });

@@ -8,6 +8,7 @@ MessagesEntity messagesFromJson(String str) =>
     MessagesEntity.fromJson(json.decode(str));
 
 String messagesToJson(MessagesEntity data) => json.encode(data.toJson());
+String sendMessageToJson(SendMessageEntity data) => json.encode(data.toJson());
 
 class MessagesEntity {
   final bool success;
@@ -59,5 +60,18 @@ class Message {
         "message": message,
         "isSent": isSent,
         "isReceived": isReceived,
+      };
+}
+
+class SendMessageEntity {
+  final String receiverId;
+  final String text;
+  SendMessageEntity({
+    required this.receiverId,
+    required this.text,
+  });
+  Map<String, dynamic> toJson() => {
+        "receiverId": receiverId,
+        "text": text,
       };
 }

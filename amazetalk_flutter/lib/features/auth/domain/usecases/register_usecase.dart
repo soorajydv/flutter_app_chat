@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:amazetalk_flutter/features/auth/domain/entities/user_entity.dart';
 import 'package:amazetalk_flutter/features/auth/domain/repositories/auth_repository.dart';
 
@@ -6,7 +8,8 @@ class RegisterUsecase {
 
   RegisterUsecase({required this.repository});
 
-  Future<UserEntity> call(String username, String email, String password) {
-    return (repository.register(username, email, password));
+  Future<UserEntity> call(
+      String username, String email, String password, File? image) {
+    return (repository.register(username, email, password, image));
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:amazetalk_flutter/features/auth/data/datasource/auth_remote_data_source.dart';
 import 'package:amazetalk_flutter/features/auth/domain/entities/user_entity.dart';
 import 'package:amazetalk_flutter/features/auth/domain/repositories/auth_repository.dart';
@@ -14,7 +16,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<UserEntity> register(
-      String username, String email, String password) async {
-    return await authRemoteDataSource.register(username, email, password);
+      String username, String email, String password, File? image) async {
+    return await authRemoteDataSource.register(
+        username, email, password, image);
   }
 }

@@ -1,13 +1,27 @@
+import 'package:flutter/foundation.dart';
+
 class UserEntity {
   final String id;
-  final String username;
+  final String name;
   final String email;
+  final String image;
   final String token;
 
   UserEntity({
     required this.id,
+    required this.name,
     required this.email,
-    required this.username,
-    this.token = " ",
+    required this.image,
+    required this.token,
   });
+
+  Uint8List? get avatar {
+    if (image.isEmpty) return null;
+
+    // Convert the image string (comma-separated integers) to a Uint8List
+
+    final imageData =
+        image.split(',').map((item) => int.parse(item.trim())).toList();
+    return Uint8List.fromList(imageData);
+  }
 }

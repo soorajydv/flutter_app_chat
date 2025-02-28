@@ -21,3 +21,12 @@ class FetchMessagesUsecase {
     return repository.fetchMessages(conversationId);
   }
 }
+
+class SendMessageUseCase {
+  final ConversationRepository repository;
+  SendMessageUseCase(this.repository);
+
+  Future<bool> call(SendMessageEntity message) async {
+    return repository.sendMessage(message);
+  }
+}

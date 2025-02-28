@@ -8,7 +8,7 @@ sealed class MessagesEvent extends Equatable {
 }
 
 class FetchMessages extends MessagesEvent {
-  final String conversationId;
+  final String chatId;
 
-  FetchMessages(this.conversationId);
+  FetchMessages(this.chatId);
 }

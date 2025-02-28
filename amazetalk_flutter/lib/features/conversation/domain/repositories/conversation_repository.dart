@@ -4,4 +4,5 @@ import 'package:amazetalk_flutter/features/conversation/domain/entities/messages
 abstract class ConversationRepository {
   Future<ConversationEntity> fetchConversations();
   Future<MessagesEntity> fetchMessages(String conversationId);
+  Future<bool> sendMessage(SendMessageEntity message);
 }
