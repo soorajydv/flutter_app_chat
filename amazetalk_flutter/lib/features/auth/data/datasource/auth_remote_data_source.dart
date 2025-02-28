@@ -31,7 +31,8 @@ class AuthRemoteDataSource {
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
         // ✅ Check if user and token exist
-        final result = UserModel.fromJson(jsonResponse);
+        final result = await UserModel.fromJson(jsonResponse);
+        print('At repo: $result');
         await cache.save(result);
         return result;
       } else if (response.statusCode == 400) {
@@ -53,11 +54,11 @@ class AuthRemoteDataSource {
       String username, String email, String password, File? imageFile) async {
     try {
       FormData formData = FormData.fromMap({
-        "username": username,
+        "name": username,
         "email": email,
         "password": password,
         if (imageFile != null)
-          "file": await MultipartFile.fromFile(imageFile.path),
+          "image": await MultipartFile.fromFile(imageFile.path),
       });
 
       // final response = await http.post(Uri.parse('$baseUrl/register'),
@@ -72,8 +73,9 @@ class AuthRemoteDataSource {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        UserModel data = UserModel.fromJson(response.data);
-        cache.save(data);
+        final data = await UserModel.fromJson(response.data);
+        print('At repo: $data');
+        await cache.save(data);
 
         return data;
       } else {

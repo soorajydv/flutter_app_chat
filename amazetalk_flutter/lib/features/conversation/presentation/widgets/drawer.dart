@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:amazetalk_flutter/features/auth/data/datasource/auth_local_data_source.dart';
 import 'package:amazetalk_flutter/features/auth/presentation/bloc/auth_event.dart';
 import 'package:amazetalk_flutter/widgets/loader.dart';
@@ -22,19 +25,22 @@ class AppDrawer extends StatelessWidget {
           BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
             if (state is CacheDataFetched) {
               final user = state.user;
+              print('Image: ${user.image}');
               return UserAccountsDrawerHeader(
                 decoration: BoxDecoration(
                   color: Colors.blue,
                 ),
-                accountName: Text(user.name),
+                accountName: Text(user.image),
                 accountEmail: Text(user.email),
                 currentAccountPicture: CircleAvatar(
                   backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.person,
-                    color: Colors.blue,
-                    size: 50,
-                  ),
+                  child: user.image.isEmpty
+                      ? Icon(
+                          Icons.person,
+                          color: Colors.blue,
+                          size: 50,
+                        )
+                      : Image.asset(user.image),
                 ),
               );
             }

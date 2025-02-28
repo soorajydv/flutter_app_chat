@@ -16,6 +16,7 @@ class AuthLocalDataSource {
     await _storage.write(key: _idKey, value: user.id);
     await _storage.write(key: _nameKey, value: user.name);
     await _storage.write(key: _emailKey, value: user.email);
+    print('Storing image: ${user.image}');
     await _storage.write(key: _avatarKey, value: user.image);
     await _storage.write(key: _tokenKey, value: user.token);
   }
@@ -25,11 +26,12 @@ class AuthLocalDataSource {
     final name = await _storage.read(key: _nameKey);
     final email = await _storage.read(key: _emailKey);
     final image = await _storage.read(key: _avatarKey);
+    print('Retrived image: ${image}');
     final token = await _storage.read(key: _tokenKey);
     return UserModel(
-        id: id,
-        name: name,
-        email: email,
+        id: id ?? '',
+        name: name ?? '',
+        email: email ?? '',
         image: image ?? '',
         token: token ?? '');
   }
