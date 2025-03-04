@@ -5,6 +5,7 @@ import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
 import 'features/conversation/presentation/pages/conversation_page.dart';
 import 'main.dart';
+import 'onboarding_page.dart';
 
 // Define a class to store your routes
 class AppRoutes {
@@ -13,6 +14,7 @@ class AppRoutes {
   static const String register = '/register';
   static const String conversations = '/conversation';
   static const String loaderPage = '/loaderPage';
+  static const String onboardingPage = '/onboardingPage';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -24,6 +26,8 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => ConversationPage());
       case loaderPage:
         return MaterialPageRoute(builder: (_) => LoaderPage());
+      case onboardingPage:
+        return MaterialPageRoute(builder: (_) => OnboardingScreen());
       default:
         return _errorRoute(settings.name ?? 'Unknown Route');
     }
