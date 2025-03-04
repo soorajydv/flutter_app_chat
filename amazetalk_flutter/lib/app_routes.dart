@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
-import 'features/conversation/presentation/pages/conversation_page.dart';
 import 'main.dart';
 import 'onboarding_page.dart';
+import 'sensor_pages.dart';
 
 // Define a class to store your routes
 class AppRoutes {
@@ -23,7 +23,11 @@ class AppRoutes {
       case register:
         return MaterialPageRoute(builder: (_) => RegisterPage());
       case conversations:
-        return MaterialPageRoute(builder: (_) => ConversationPage());
+        return MaterialPageRoute(
+            builder: (_) =>
+
+                // ConversationPage()
+                SensorChatApp());
       case loaderPage:
         return MaterialPageRoute(builder: (_) => LoaderPage());
       case onboardingPage:
