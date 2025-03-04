@@ -1,3 +1,8 @@
+{
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "always"
+    }
+}
 // {
 //     "security.workspace.trust.enabled": false,
 //     "[dart]": {

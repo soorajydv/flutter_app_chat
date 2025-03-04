@@ -1,16 +1,15 @@
 import 'dart:convert';
 
-import 'package:amazetalk_flutter/chat_page.dart';
 import 'package:amazetalk_flutter/features/conversation/presentation/blocs/chats_bloc/chats_bloc.dart';
 import 'package:amazetalk_flutter/features/conversation/presentation/widgets/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../../constants/urls.dart';
 import '../../../../utils/humanize.dart';
 import '../../../auth/data/datasource/auth_local_data_source.dart';
 import 'chat_page2.dart';
-import 'package:http/http.dart' as http;
 // import 'chat_page.dart';
 // import 'mesage_page.dart';
 

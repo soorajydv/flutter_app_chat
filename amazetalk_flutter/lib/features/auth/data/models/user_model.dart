@@ -1,10 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:amazetalk_flutter/features/auth/domain/entities/user_entity.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:gal/gal.dart';
 
 import 'img_saver.dart';
 
@@ -22,7 +16,9 @@ class UserModel extends UserEntity {
   }
 
   static Future<UserModel> fromJson(Map<String, dynamic> json) async {
-    final imagePath = await ImageSaver.saveImageToGallery(json['image']);
+    final filePath = json['image'];
+    final imagePath =
+        filePath == null ? null : await ImageSaver.saveImageToGallery(filePath);
 
     print('saved path: $imagePath');
     return UserModel(
