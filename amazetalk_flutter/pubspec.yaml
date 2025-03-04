@@ -53,6 +53,7 @@ dependencies:
   image_gallery_saver: ^2.0.3
   gal: ^2.3.1
   path: ^1.9.0
+  flutter_native_splash: ^2.4.4
 
 dev_dependencies:
   flutter_test:
