@@ -4,12 +4,12 @@ import 'dart:convert';
 import 'package:amazetalk_flutter/constants/urls.dart';
 import 'package:amazetalk_flutter/features/auth/data/datasource/auth_local_data_source.dart';
 import 'package:amazetalk_flutter/widgets/loader.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:http/http.dart' as http;
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/foundation.dart' as foundation;
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../blocs/chats_bloc/chats_bloc.dart';
 
@@ -21,21 +21,20 @@ class ChatScreen extends StatefulWidget {
   final String chatName;
   final bool isGroupChat;
   const ChatScreen(
-      {Key? key,
+      {super.key,
       required this.userId,
       required this.roomId,
       required this.chatName,
-      required this.isGroupChat})
-      : super(key: key);
+      required this.isGroupChat});
   @override
-  _ChatScreenState createState() => _ChatScreenState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
   IO.Socket? socket;
   List<dynamic> messages = [];
-  TextEditingController _messageController = TextEditingController();
-  ScrollController _scrollController = ScrollController();
+  final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   bool otherUserTyping = false;
   bool showEmojiPicker = false;
   bool loading = false;
@@ -69,7 +68,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('Search results: ${data}');
+        print('Search results: $data');
         setState(() {
           _results = data;
         });
@@ -80,7 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     } catch (e) {
-      print('Error: ${e}');
+      print('Error: $e');
       setState(() {
         _error = true;
       });
@@ -99,7 +98,7 @@ class _ChatScreenState extends State<ChatScreen> {
           title: const Text('Search Results'),
           content: _loading
               ? const Center(child: CircularProgressIndicator())
-              : Container(
+              : SizedBox(
                   width: double.maxFinite,
                   child: _results.isEmpty
                       ? const Text('No users found.')
@@ -194,7 +193,7 @@ class _ChatScreenState extends State<ChatScreen> {
     // Create and connect the socket
     socket = IO.io(BACKEND_URL, <String, dynamic>{
       'transports': ['websocket'],
-      'autoConnect': false,
+      'autoConnect': true,
     });
     socket?.connect();
 

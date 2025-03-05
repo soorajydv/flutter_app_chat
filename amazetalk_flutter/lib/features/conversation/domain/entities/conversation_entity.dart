@@ -1,21 +1,4 @@
-// class ConversationEntity {
-//   final String id;
-//   final String conversation;
-//   final String senderId;
-//   final String senderName;
-//   final String message;
-//   final DateTime createdAt;
-//   final DateTime updatedAt;
 
-//   ConversationEntity(
-//       {required this.id,
-//       required this.conversation,
-//       required this.senderId,
-//       required this.senderName,
-//       required this.message,
-//       required this.createdAt,
-//       required this.updatedAt});
-// }
 
 class ConversationEntity {
   ConversationEntity({

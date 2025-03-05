@@ -10,5 +10,5 @@ sealed class MessagesEvent extends Equatable {
 class FetchMessages extends MessagesEvent {
   final String chatId;
 
-  FetchMessages(this.chatId);
+  const FetchMessages(this.chatId);
 }

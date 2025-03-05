@@ -1,16 +1,15 @@
 import 'dart:convert';
 
-import 'package:amazetalk_flutter/chat_page.dart';
 import 'package:amazetalk_flutter/features/conversation/presentation/blocs/chats_bloc/chats_bloc.dart';
 import 'package:amazetalk_flutter/features/conversation/presentation/widgets/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../../constants/urls.dart';
 import '../../../../utils/humanize.dart';
 import '../../../auth/data/datasource/auth_local_data_source.dart';
 import 'chat_page2.dart';
-import 'package:http/http.dart' as http;
 // import 'chat_page.dart';
 // import 'mesage_page.dart';
 
@@ -46,7 +45,7 @@ class _ConversationPageState extends State<ConversationPage> {
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('Search results: ${data}');
+        print('Search results: $data');
         setState(() {
           _results = data;
         });
@@ -57,7 +56,7 @@ class _ConversationPageState extends State<ConversationPage> {
         });
       }
     } catch (e) {
-      print('Error: ${e}');
+      print('Error: $e');
       setState(() {
         _error = true;
       });
@@ -76,7 +75,7 @@ class _ConversationPageState extends State<ConversationPage> {
           title: const Text('Search Results'),
           content: _loading
               ? const Center(child: CircularProgressIndicator())
-              : Container(
+              : SizedBox(
                   width: double.maxFinite,
                   child: _results.isEmpty
                       ? const Text('No users found.')
@@ -155,8 +154,8 @@ class _ConversationPageState extends State<ConversationPage> {
 
   /// Displays _showAddGroupForm in a popup dialog.
   void showCreateGroupDialog() {
-    final TextEditingController _groupNameController = TextEditingController();
-    final _formKey = GlobalKey<FormState>();
+    final TextEditingController groupNameController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
@@ -164,9 +163,9 @@ class _ConversationPageState extends State<ConversationPage> {
         return AlertDialog(
           title: const Text('Create a New Group'),
           content: Form(
-            key: _formKey,
+            key: formKey,
             child: TextFormField(
-              controller: _groupNameController,
+              controller: groupNameController,
               decoration: const InputDecoration(
                 labelText: 'Group Name',
                 hintText: 'Enter group name',
@@ -186,9 +185,9 @@ class _ConversationPageState extends State<ConversationPage> {
             ),
             ElevatedButton(
               onPressed: () async {
-                if (_formKey.currentState!.validate()) {
+                if (formKey.currentState!.validate()) {
                   // Handle the valid group name (e.g., API call)
-                  final groupName = _groupNameController.text.trim();
+                  final groupName = groupNameController.text.trim();
                   final token = await AuthLocalDataSource().getToken();
                   print('Token: $token');
                   final response = await http.post(
@@ -199,7 +198,7 @@ class _ConversationPageState extends State<ConversationPage> {
                       },
                       body: jsonEncode({'users': [], 'name': groupName}));
                   if (response.statusCode == 200) {
-                    print("Group Created: ${groupName}");
+                    print("Group Created: $groupName");
                     BlocProvider.of<ChatsBloc>(context).add(FetchChats());
                   }
                   Navigator.pop(context);
