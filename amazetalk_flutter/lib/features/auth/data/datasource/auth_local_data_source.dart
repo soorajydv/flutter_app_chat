@@ -26,7 +26,7 @@ class AuthLocalDataSource {
     final name = await _storage.read(key: _nameKey);
     final email = await _storage.read(key: _emailKey);
     final image = await _storage.read(key: _avatarKey);
-    print('Retrived image: ${image}');
+    print('Retrived image: $image');
     final token = await _storage.read(key: _tokenKey);
     return UserModel(
         id: id ?? '',

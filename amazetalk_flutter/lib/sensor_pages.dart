@@ -6,6 +6,8 @@ import 'package:sensors_plus/sensors_plus.dart';
 import 'package:shake/shake.dart';
 
 class SensorChatApp extends StatefulWidget {
+  const SensorChatApp({super.key});
+
   @override
   _SensorChatAppState createState() => _SensorChatAppState();
 }
@@ -46,6 +48,8 @@ class _SensorChatAppState extends State<SensorChatApp> {
 
 // 1. Light Sensor for Auto Theme Switching
 class LightSensorThemePage extends StatefulWidget {
+  const LightSensorThemePage({super.key});
+
   @override
   _LightSensorThemePageState createState() => _LightSensorThemePageState();
 }
@@ -80,7 +84,7 @@ class _LightSensorThemePageState extends State<LightSensorThemePage> {
         onListen: (subscription) {
           subscription.onData((lux) {
             setState(() {
-              _isDarkMode = lux < 50;
+              _isDarkMode = lux < 50; //9842063607
             });
           });
         },
@@ -98,6 +102,8 @@ class _LightSensorThemePageState extends State<LightSensorThemePage> {
 
 // 2. Shake to Swap Message Position
 class ShakeSwapMessagesPage extends StatefulWidget {
+  const ShakeSwapMessagesPage({super.key});
+
   @override
   _ShakeSwapMessagesPageState createState() => _ShakeSwapMessagesPageState();
 }
@@ -146,7 +152,7 @@ class ChatBubble extends StatelessWidget {
   final String text;
   final bool isSent;
 
-  ChatBubble({required this.text, required this.isSent});
+  const ChatBubble({super.key, required this.text, required this.isSent});
 
   @override
   Widget build(BuildContext context) {
@@ -165,6 +171,8 @@ class ChatBubble extends StatelessWidget {
 
 // 3. Gyroscope Emoji Reaction
 class GyroEmojiReactionPage extends StatefulWidget {
+  const GyroEmojiReactionPage({super.key});
+
   @override
   _GyroEmojiReactionPageState createState() => _GyroEmojiReactionPageState();
 }

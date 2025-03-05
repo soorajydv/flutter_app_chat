@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({Key? key}) : super(key: key);
+  const SearchPage({super.key});
 
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -64,7 +64,7 @@ class _SearchPageState extends State<SearchPage> {
           title: const Text('Search Results'),
           content: _loading
               ? const Center(child: CircularProgressIndicator())
-              : Container(
+              : SizedBox(
                   width: double.maxFinite,
                   child: _results.isEmpty
                       ? const Text('No users found.')

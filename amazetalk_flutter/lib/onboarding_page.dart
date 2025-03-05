@@ -5,6 +5,8 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'app_routes.dart';
 
 class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({super.key});
+
   @override
   _OnboardingScreenState createState() => _OnboardingScreenState();
 }
@@ -112,8 +114,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 class OnboardingPage extends StatelessWidget {
   final String title, description, image;
 
-  OnboardingPage(
-      {required this.title, required this.description, required this.image});
+  const OnboardingPage(
+      {super.key,
+      required this.title,
+      required this.description,
+      required this.image});
 
   @override
   Widget build(BuildContext context) {

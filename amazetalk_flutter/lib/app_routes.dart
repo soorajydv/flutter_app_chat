@@ -42,7 +42,7 @@ class AppRoutes {
     return MaterialPageRoute(
       builder: (_) => Scaffold(
         appBar: AppBar(title: Text('Error')),
-        body: Center(child: Text('No route defined for ${name}')),
+        body: Center(child: Text('No route defined for $name')),
       ),
     );
   }

@@ -68,7 +68,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('Search results: ${data}');
+        print('Search results: $data');
         setState(() {
           _results = data;
         });
@@ -79,7 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     } catch (e) {
-      print('Error: ${e}');
+      print('Error: $e');
       setState(() {
         _error = true;
       });
@@ -98,7 +98,7 @@ class _ChatScreenState extends State<ChatScreen> {
           title: const Text('Search Results'),
           content: _loading
               ? const Center(child: CircularProgressIndicator())
-              : Container(
+              : SizedBox(
                   width: double.maxFinite,
                   child: _results.isEmpty
                       ? const Text('No users found.')
