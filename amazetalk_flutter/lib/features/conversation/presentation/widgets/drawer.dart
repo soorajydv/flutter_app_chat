@@ -1,3 +1,4 @@
+import 'package:amazetalk_flutter/constants/urls.dart';
 import 'package:amazetalk_flutter/features/auth/data/datasource/auth_local_data_source.dart';
 import 'package:amazetalk_flutter/features/auth/presentation/bloc/auth_event.dart';
 import 'package:amazetalk_flutter/widgets/loader.dart';
@@ -13,93 +14,109 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Trigger the event only once when the widget is built
     BlocProvider.of<AuthBloc>(context).add(GetCacheData());
+
     return Drawer(
       child: Column(
         children: [
-          // Drawer Header with Avatar
+          // Drawer Header with Enhanced CircleAvatar
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (state is CacheDataFetched) {
+                final user = state.user;
+                print('Avatar URL: ${BACKEND_URL + user.avatar}');
 
-          BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
-            if (state is CacheDataFetched) {
-              final user = state.user;
-              print('Image: ${user.image}');
-              return UserAccountsDrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
-                accountName: Text(user.image),
-                accountEmail: Text(user.email),
-                currentAccountPicture: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: user.image.isEmpty
-                      ? Icon(
-                          Icons.person,
-                          color: Colors.blue,
-                          size: 50,
-                        )
-                      : Image.asset(user.image),
-                ),
-              );
-            }
-            return Loader();
-          }),
+                return UserAccountsDrawerHeader(
+                  decoration: const BoxDecoration(
+                    color: Colors.blue,
+                    // Optional: Add gradient
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Colors.blue, Colors.blueAccent],
+                    ),
+                  ),
+                  accountName: Text(
+                    user.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  accountEmail: Text(
+                    user.email,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  currentAccountPicture: CircleAvatar(
+                    radius: 36, // Adjust size as needed
+                    backgroundColor: Colors.white,
+                    child: ClipOval(
+                      child: user.avatar.isEmpty
+                          ? const Icon(
+                              Icons.person,
+                              color: Colors.blue,
+                              size: 50,
+                            )
+                          : Image.network(
+                              BACKEND_URL + user.avatar,
+                              fit: BoxFit.cover,
+                              width: 72, // Double the radius
+                              height: 72,
+                              // loadingBuilder: (context, _, __) =>
+                              //     const CircularProgressIndicator(
+                              //   color: Colors.blue,
+                              // ),
+                              errorBuilder: (context, url, error) => const Icon(
+                                Icons.error,
+                                color: Colors.red,
+                                size: 30,
+                              ),
+                            ),
+                    ),
+                  ),
+                );
+              }
+              return const Loader();
+            },
+          ),
 
           // Drawer Menu Items
           ListTile(
-            leading: Icon(Icons.home),
-            title: Text('Home'),
+            leading: const Icon(Icons.home),
+            title: const Text('Home'),
             onTap: () {
               Navigator.pop(context);
-              // Handle Home navigation
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.account_circle),
-            title: Text('Profile'),
-            onTap: () {
-              Navigator.pop(context);
-              // Handle Profile navigation
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
-            onTap: () {
-              Navigator.pop(context);
-              // Handle Settings navigation
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.notifications),
-            title: Text('Notifications'),
-            onTap: () {
-              Navigator.pop(context);
-              // Handle Notifications navigation
             },
           ),
 
-          // Spacer to push logout button to the bottom
-          Spacer(),
+          const Spacer(),
 
-          // Logout Button at the bottom
+          // Logout Button
           ListTile(
-            leading: Icon(Icons.exit_to_app, color: Colors.red),
-            title: Text(
+            leading: const Icon(Icons.exit_to_app, color: Colors.red),
+            title: const Text(
               'Logout',
               style: TextStyle(color: Colors.red),
             ),
             onTap: () async {
-              // Handle Logout action
-              Navigator.pop(context); // Close the drawer
-              // Implement logout functionality here
-              print('Logged out');
-
-              await AuthLocalDataSource().clear();
-
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                AppRoutes.login,
-                (route) => false,
-              );
+              Navigator.pop(context);
+              try {
+                await AuthLocalDataSource().clear();
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    AppRoutes.login,
+                    (route) => false,
+                  );
+                }
+              } catch (e) {
+                print('Logout error: $e');
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Logout failed')),
+                  );
+                }
+              }
             },
           ),
         ],

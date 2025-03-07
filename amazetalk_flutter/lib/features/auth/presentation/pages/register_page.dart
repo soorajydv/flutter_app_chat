@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:amazetalk_flutter/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:amazetalk_flutter/features/auth/presentation/bloc/auth_event.dart';
 import 'package:amazetalk_flutter/features/auth/presentation/bloc/auth_state.dart';
@@ -8,6 +9,7 @@ import 'package:amazetalk_flutter/features/auth/presentation/widgets/login_promp
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../../../app_routes.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -67,79 +69,81 @@ class _RegisterPageState extends State<RegisterPage> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              GestureDetector(
-                onTap: _pickImage,
-                child: _imageFile == null
-                    ? Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          shape: BoxShape
-                              .circle, // Ensures the shape is always circular
-                          border: Border.all(color: Colors.grey, width: 2),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: _imageFile == null
+                      ? Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            shape: BoxShape
+                                .circle, // Ensures the shape is always circular
+                            border: Border.all(color: Colors.grey, width: 2),
+                          ),
+                          child: const Center(
+                            child: Icon(Icons.camera_alt,
+                                size: 50, color: Colors.grey),
+                          ),
+                        )
+                      : CircleAvatar(
+                          radius: 60, // Ensure consistent circular size
+                          backgroundImage:
+                              FileImage(_imageFile!), // Display picked image
+                          backgroundColor:
+                              Colors.transparent, // Remove any background color
                         ),
-                        child: const Center(
-                          child: Icon(Icons.camera_alt,
-                              size: 50, color: Colors.grey),
-                        ),
-                      )
-                    : CircleAvatar(
-                        radius: 60, // Ensure consistent circular size
-                        backgroundImage:
-                            FileImage(_imageFile!), // Display picked image
-                        backgroundColor:
-                            Colors.transparent, // Remove any background color
-                      ),
-              ),
-              const SizedBox(height: 20),
-              AuthInputField(
-                hint: "Username",
-                icon: Icons.person,
-                controller: _usernameController,
-              ),
-              const SizedBox(height: 20),
-              AuthInputField(
-                hint: "Email",
-                icon: Icons.email,
-                controller: _emailController,
-              ),
-              const SizedBox(height: 20),
-              AuthInputField(
-                hint: "Password",
-                icon: Icons.lock,
-                controller: _passwordController,
-              ),
-              const SizedBox(height: 20),
-              const SizedBox(height: 40),
-              BlocConsumer<AuthBloc, AuthState>(
-                builder: (context, state) {
-                  if (state is AuthLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  return AuthButton(text: "Register", onPressed: _onRegister);
-                },
-                listener: (context, state) {
-                  if (state is AuthSuccess) {
+                ),
+                const SizedBox(height: 20),
+                AuthInputField(
+                  hint: "Username",
+                  icon: Icons.person,
+                  controller: _usernameController,
+                ),
+                const SizedBox(height: 20),
+                AuthInputField(
+                  hint: "Email",
+                  icon: Icons.email,
+                  controller: _emailController,
+                ),
+                const SizedBox(height: 20),
+                AuthInputField(
+                  hint: "Password",
+                  icon: Icons.lock,
+                  controller: _passwordController,
+                ),
+                const SizedBox(height: 20),
+                const SizedBox(height: 40),
+                BlocConsumer<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    if (state is AuthLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return AuthButton(text: "Register", onPressed: _onRegister);
+                  },
+                  listener: (context, state) {
+                    if (state is AuthSuccess) {
+                      Navigator.pushNamed(context, AppRoutes.login);
+                    } else if (state is AuthFailure) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text(state.error)));
+                    }
+                  },
+                ),
+                const SizedBox(height: 20),
+                LoginPrompt(
+                  title: "Already have an account?",
+                  subtitle: "Login",
+                  onTap: () {
                     Navigator.pushNamed(context, AppRoutes.login);
-                  } else if (state is AuthFailure) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text(state.error)));
-                  }
-                },
-              ),
-              const SizedBox(height: 20),
-              LoginPrompt(
-                title: "Already have an account?",
-                subtitle: "Login",
-                onTap: () {
-                  Navigator.pushNamed(context, AppRoutes.login);
-                },
-              ),
-            ],
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

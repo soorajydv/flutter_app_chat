@@ -17,13 +17,16 @@ import 'features/conversation/data/repositories/chats_repositories_impl.dart';
 import 'features/conversation/domain/usecase/chats_usecase.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
+ValueNotifier<Brightness> appThemeMode = ValueNotifier(Brightness.light);
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // ✅ Ensure Flutter is initialized
+  // WidgetsFlutterBinding.ensureInitialized(); // ✅ Ensure Flutter is initialized
 
   // ✅ Correctly initialize Auth Dependencies
 
-  WidgetsFlutterBinding.ensureInitialized();
+  // WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool onboardingComplete = prefs.getBool('onboardingComplete') ?? false;
 
@@ -72,7 +75,7 @@ class MyApp extends StatelessWidget {
       ],
       child: SafeArea(
         child: MaterialApp(
-          title: 'Flutter Demo',
+          title: 'Amaze Chat',
           // Set initial route
           initialRoute: isOnboardingCompleted
               ? AppRoutes.loaderPage
@@ -90,6 +93,7 @@ class MyApp extends StatelessWidget {
           onGenerateRoute: AppRoutes.generateRoute,
           // Set the navigator key here
           navigatorKey: navigatorKey,
+          // theme: ThemeData().copyWith(brightness: appThemeMode.value),
         ),
       ),
     );

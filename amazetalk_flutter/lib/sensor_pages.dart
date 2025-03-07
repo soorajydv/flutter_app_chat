@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:light_sensor/light_sensor.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-import 'package:shake/shake.dart';
+// import 'package:shake/shake.dart';
+import 'package:shake_gesture/shake_gesture.dart';
 
 class SensorChatApp extends StatefulWidget {
   const SensorChatApp({super.key});
@@ -58,6 +59,12 @@ class _LightSensorThemePageState extends State<LightSensorThemePage> {
   bool _isDarkMode = false;
 
   @override
+  void dispose() {
+    LightSensor.luxStream().drain();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     initLightSensor();
@@ -80,15 +87,23 @@ class _LightSensorThemePageState extends State<LightSensorThemePage> {
   void initLightSensor() async {
     if (Platform.isAndroid && await LightSensor.hasSensor()) {
       print('Have light sensor');
-      LightSensor.luxStream().asBroadcastStream(
-        onListen: (subscription) {
-          subscription.onData((lux) {
-            setState(() {
-              _isDarkMode = lux < 50; //9842063607
-            });
-          });
-        },
-      );
+      // Subscribe on updates
+      LightSensor.luxStream().listen((lux) {
+        print('lux value: $lux ...........................');
+        setState(() {
+          _isDarkMode = lux < 5; //9842063607
+        });
+      });
+      // LightSensor.luxStream().asBroadcastStream(
+      //   onListen: (subscription) {
+      //     subscription.onData((lux) {
+      //       print('lux value: $lux ...........................');
+      //       setState(() {
+      //         _isDarkMode = lux < 50; //9842063607
+      //       });
+      //     });
+      //   },
+      // );
     } else {
       print('Have no sensor');
     }
@@ -110,21 +125,28 @@ class ShakeSwapMessagesPage extends StatefulWidget {
 
 class _ShakeSwapMessagesPageState extends State<ShakeSwapMessagesPage> {
   bool isSwapped = false;
-  ShakeDetector? detector;
-
-  @override
-  void initState() {
-    super.initState();
-    detector = ShakeDetector.autoStart(onPhoneShake: () {
-      setState(() {
-        isSwapped = !isSwapped;
-      });
+  // ShakeDetector? detector;
+  void toggleSwap() {
+    setState(() {
+      isSwapped = !isSwapped;
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    // Register the callback
+    ShakeGesture.registerCallback(onShake: toggleSwap);
+  }
+
+  @override
   void dispose() {
-    detector?.stopListening();
+    // detector?.stopListening();
+    // Register the callback\
+
+    // In dispose functions, don't forget to clean up
+    ShakeGesture.unregisterCallback(onShake: toggleSwap);
     super.dispose();
   }
 
@@ -150,6 +172,7 @@ class _ShakeSwapMessagesPageState extends State<ShakeSwapMessagesPage> {
 
 class ChatBubble extends StatelessWidget {
   final String text;
+
   final bool isSent;
 
   const ChatBubble({super.key, required this.text, required this.isSent});
@@ -184,7 +207,7 @@ class _GyroEmojiReactionPageState extends State<GyroEmojiReactionPage> {
   @override
   void initState() {
     super.initState();
-    gyroscopeEvents.listen((GyroscopeEvent event) {
+    gyroscopeEventStream().listen((GyroscopeEvent event) {
       setState(() {
         if (event.y > tiltThreshold) {
           emojiReaction = "😂";

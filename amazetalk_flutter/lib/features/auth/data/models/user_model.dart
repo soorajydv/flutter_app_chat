@@ -1,32 +1,33 @@
 import 'package:amazetalk_flutter/features/auth/domain/entities/user_entity.dart';
 
-import 'img_saver.dart';
-
 class UserModel extends UserEntity {
   UserModel(
       {required super.id,
       required super.name,
       required super.email,
       required super.image,
+      required super.avatar,
       required super.token});
 
   @override
   String toString() {
-    return 'UserModel{$id, $email, $name,$token   , $image}';
+    return 'UserModel{$id, $email, $name,$token   , $avatar}';
   }
 
   static Future<UserModel> fromJson(Map<String, dynamic> json) async {
-    final filePath = json['image'];
-    final imagePath =
-        filePath == null ? null : await ImageSaver.saveImageToGallery(filePath);
+    print('Login data: ${json}');
+    // final filePath = json['image'];
+    // final imagePath =
+    //     filePath == null ? null : await ImageSaver.saveImageToGallery(filePath);
 
-    print('saved path: $imagePath');
+    // print('saved path: $imagePath');
     return UserModel(
         id: json['_id'] ?? '', // Ensure safe access
         name: json['name'] ?? '',
         email: json['email'] ?? '',
         token: json["token"] ?? '',
-        image: imagePath ?? '');
+        avatar: json["avatar"] ?? '',
+        image: '');
     // );
   }
 }

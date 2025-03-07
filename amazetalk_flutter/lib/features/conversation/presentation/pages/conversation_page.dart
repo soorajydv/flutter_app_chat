@@ -215,6 +215,7 @@ class _ConversationPageState extends State<ConversationPage> {
   @override
   void initState() {
     BlocProvider.of<ChatsBloc>(context).add(FetchChats());
+
     super.initState();
   }
 
@@ -282,23 +283,24 @@ class _ConversationPageState extends State<ConversationPage> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: Text("Recent"),
-            ),
-            Container(
-              height: 100,
-              padding: EdgeInsets.all(5),
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildeRecentContact("Sandesh", context),
-                  _buildeRecentContact("Avishek", context),
-                  _buildeRecentContact("Samip", context),
-                  _buildeRecentContact("Robin", context)
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 15),
+            //   child: Text("Recent"),
+            // ),
+            // Container(
+            //   height: 100,
+            //   padding: EdgeInsets.all(5),
+            //   child: ListView(
+            //     scrollDirection: Axis.horizontal,
+            //     children: [
+            //       _buildeRecentContact("Sandesh", context),
+            //       _buildeRecentContact("Avishek", context),
+            //       _buildeRecentContact("Samip", context),
+            //       _buildeRecentContact("Robin", context)
+            //     ],
+            //   ),
+            // ),
+
             SizedBox(height: 10),
             Expanded(
               child: Container(

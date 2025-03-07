@@ -20,6 +20,7 @@ class LoaderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // FlutterNativeSplash.remove();
     _checkToken(context);
     return Scaffold(
       body: Center(child: Loader()),

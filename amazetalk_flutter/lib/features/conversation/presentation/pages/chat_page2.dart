@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:amazetalk_flutter/constants/urls.dart';
 import 'package:amazetalk_flutter/features/auth/data/datasource/auth_local_data_source.dart';
@@ -9,6 +10,9 @@ import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
+import 'package:light_sensor/light_sensor.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'package:shake_gesture/shake_gesture.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../blocs/chats_bloc/chats_bloc.dart';
@@ -31,6 +35,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  bool isDarkMode = false;
   IO.Socket? socket;
   List<dynamic> messages = [];
   final TextEditingController _messageController = TextEditingController();
@@ -94,90 +99,231 @@ class _ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Search Results'),
-          content: _loading
-              ? const Center(child: CircularProgressIndicator())
-              : SizedBox(
-                  width: double.maxFinite,
-                  child: _results.isEmpty
-                      ? const Text('No users found.')
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: _results.length,
-                          itemBuilder: (context, index) {
-                            final user = _results[index];
-                            final userId = user['_id'];
-                            return BlocListener<ChatsBloc, ChatsState>(
-                              listener: (context, state) {
-                                if (state is MemberAddedToGroup ||
-                                    state is MemberAddedToGroupFailed) {
-                                  // pop searched window
-                                  Navigator.pop(context);
-
-                                  // Clear search field
-                                  _searchController.clear();
-                                  setState(() {
-                                    isSearching = false;
-                                  });
-
-                                  // Show scaffold if add member success / failed
-
-                                  if (state is MemberAddedToGroup) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                'Member added to this Group',
-                                                style: TextStyle(
-                                                    color: Colors.white)),
-                                            backgroundColor: Colors.red));
-                                  } else if (state
-                                      is MemberAddedToGroupFailed) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                'Failed to add member to this Group',
-                                                style: TextStyle(
-                                                    color: Colors.white)),
-                                            backgroundColor: Colors.red));
-                                  }
-                                }
-                              },
-                              child: Card(
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                child: ListTile(
-                                  onTap: () {
-                                    // Add member to this chat
-                                    BlocProvider.of<ChatsBloc>(context).add(
-                                        AddMemberToGroup(
-                                            userId, widget.roomId));
-                                  },
-                                  leading: CircleAvatar(
-                                    backgroundImage: user['image'] != null
-                                        ? NetworkImage(
-                                            'https://akm-img-a-in.tosshub.com/indiatoday/images/story/202410/srk-discusses-adventure-film-with-amar-kaushik-after-king-and-pathaan-2-report-034431846-3x4.jpg?VersionId=4ftMrJ_hzQEQF1NRKWt4JQ8yo2YJBSWX')
-                                        : null,
-                                    child: user['image'] == null
-                                        ? Text((user['name'][0]).toUpperCase())
-                                        : null,
-                                  ),
-                                  title: Text(user['name'] ?? ''),
-                                  subtitle: Text(user['email'] ?? ''),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+        return isDarkMode
+            ? AlertDialog(
+                backgroundColor: Colors.grey[900], // Dark background
+                title: const Text(
+                  'Search Results',
+                  style: TextStyle(color: Colors.white), // Light text color
                 ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
-            )
-          ],
-        );
+                content: _loading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SizedBox(
+                        width: double.maxFinite,
+                        child: _results.isEmpty
+                            ? const Text(
+                                'No users found.',
+                                style: TextStyle(
+                                    color: Colors.white70), // Subtle text
+                              )
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: _results.length,
+                                itemBuilder: (context, index) {
+                                  final user = _results[index];
+                                  print('user:  $user');
+                                  final userId = user['_id'];
+                                  print('dfgdg: ${user["avatar"]}');
+                                  return BlocListener<ChatsBloc, ChatsState>(
+                                    listener: (context, state) {
+                                      if (state is MemberAddedToGroup ||
+                                          state is MemberAddedToGroupFailed) {
+                                        // pop searched window
+                                        Navigator.pop(context);
+
+                                        // Clear search field
+                                        _searchController.clear();
+                                        setState(() {
+                                          isSearching = false;
+                                        });
+
+                                        // Show scaffold if add member success / failed
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              state is MemberAddedToGroup
+                                                  ? 'Member added to this Group'
+                                                  : 'Failed to add member to this Group',
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            backgroundColor:
+                                                state is MemberAddedToGroup
+                                                    ? Colors.green[800]
+                                                    : Colors.red[800],
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: Card(
+                                      color: Colors.grey[850], // Dark card
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 4),
+                                      child: ListTile(
+                                        onTap: () {
+                                          // Add member to this chat
+                                          BlocProvider.of<ChatsBloc>(context)
+                                              .add(AddMemberToGroup(
+                                                  userId, widget.roomId));
+                                        },
+                                        leading: CircleAvatar(
+                                          // backgroundImage: user['avatar'] !=
+                                          //         null
+                                          //     ? NetworkImage(
+                                          //         getAvatarUrl(user['avatar']))
+                                          //     : null,
+                                          child: user['avatar'] == null ||
+                                                  (user['avatar']).isEmpty
+                                              ? Text(
+                                                  (user['name'][0])
+                                                      .toUpperCase(),
+                                                  style: const TextStyle(
+                                                      color: Colors.white),
+                                                )
+                                              : ClipOval(
+                                                  child: Image.network(
+                                                    BACKEND_URL +
+                                                        user['avatar'],
+                                                    fit: BoxFit.cover,
+                                                    width:
+                                                        72, // Double the radius
+                                                    height: 72,
+                                                    // loadingBuilder: (context, _, __) =>
+                                                    //     const CircularProgressIndicator(
+                                                    //   color: Colors.blue,
+                                                    // ),
+                                                    errorBuilder:
+                                                        (context, url, error) =>
+                                                            const Icon(
+                                                      Icons.error,
+                                                      color: Colors.red,
+                                                      size: 30,
+                                                    ),
+                                                  ),
+                                                ),
+                                        ),
+                                        title: Text(
+                                          user['name'] ?? '',
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                        ),
+                                        subtitle: Text(
+                                          user['email'] ?? '',
+                                          style:
+                                              TextStyle(color: Colors.white70),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      'Close',
+                      style:
+                          TextStyle(color: Colors.blueAccent), // Button color
+                    ),
+                  )
+                ],
+              )
+            : AlertDialog(
+                title: const Text('Search Results'),
+                content: _loading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SizedBox(
+                        width: double.maxFinite,
+                        child: _results.isEmpty
+                            ? const Text('No users found.')
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: _results.length,
+                                itemBuilder: (context, index) {
+                                  final user = _results[index];
+                                  final userId = user['_id'];
+
+                                  print('user: $user');
+                                  print('avatar: ${user['avatar']}');
+                                  return BlocListener<ChatsBloc, ChatsState>(
+                                    listener: (context, state) {
+                                      if (state is MemberAddedToGroup ||
+                                          state is MemberAddedToGroupFailed) {
+                                        // pop searched window
+                                        Navigator.pop(context);
+
+                                        // Clear search field
+                                        _searchController.clear();
+                                        setState(() {
+                                          isSearching = false;
+                                        });
+
+                                        // Show scaffold if add member success / failed
+
+                                        if (state is MemberAddedToGroup) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content: Text(
+                                                      'Member added to this Group',
+                                                      style: TextStyle(
+                                                          color: Colors.white)),
+                                                  backgroundColor: Colors.red));
+                                        } else if (state
+                                            is MemberAddedToGroupFailed) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content: Text(
+                                                      'Failed to add member to this Group',
+                                                      style: TextStyle(
+                                                          color: Colors.white)),
+                                                  backgroundColor: Colors.red));
+                                        }
+                                      }
+                                    },
+                                    child: Card(
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 4),
+                                      child: ListTile(
+                                        onTap: () {
+                                          // Add member to this chat
+                                          BlocProvider.of<ChatsBloc>(context)
+                                              .add(AddMemberToGroup(
+                                                  userId, widget.roomId));
+                                        },
+                                        leading: CircleAvatar(
+                                          backgroundImage:
+                                              user['avatar'].isNotEmpty
+                                                  ? NetworkImage(user['avatar'])
+                                                  : null,
+                                          child: user['avatar'].isEmpty
+                                              ? Text((user['name'][0])
+                                                  .toUpperCase())
+                                              : null,
+                                        ),
+                                        title: Text(user['name'] ?? ''),
+                                        subtitle: Text(user['email'] ?? ''),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Close'),
+                  )
+                ],
+              );
       },
     );
+  }
+
+  void onShake() {
+    print('Shaking...........................');
+    sendMessage('👍');
   }
 
   @override
@@ -185,6 +331,42 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     connectSocket();
     fetchMessages();
+    initLightSensor();
+    // initTiltSensor();
+    ShakeGesture.registerCallback(onShake: onShake);
+  }
+
+  final double tiltThreshold = 2.0;
+
+  void initTiltSensor() {
+    super.initState();
+    gyroscopeEventStream().listen((GyroscopeEvent event) {
+      setState(() {
+        String emojiReaction = '???';
+
+        if (event.y > tiltThreshold) {
+          emojiReaction = "😂";
+        } else if (event.y < -tiltThreshold) {
+          emojiReaction = "❤️";
+        }
+        print('Emoji: $emojiReaction   value:  ${event.y}');
+      });
+    });
+  }
+
+  void initLightSensor() async {
+    if (Platform.isAndroid && await LightSensor.hasSensor()) {
+      print('Have light sensor');
+      // Subscribe on updates
+      LightSensor.luxStream().listen((lux) {
+        print('lux value: $lux ...........................');
+        setState(() {
+          isDarkMode = lux < 5; //9842063607
+        });
+      });
+    } else {
+      print('Have no sensor');
+    }
   }
 
   void connectSocket() {
@@ -279,10 +461,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   // Send a message using an API call then emit a socket event
-  void sendMessage() async {
+  void sendMessage([String? messageValue]) async {
     final localAuthToken = await AuthLocalDataSource().getToken();
     String chatId = widget.roomId;
-    if (_messageController.text.trim().isEmpty) return;
+    if (_messageController.text.trim().isEmpty && messageValue == null) return;
     // Cancel any pending stop typing event as we are sending the message
     _stopTyping();
     setState(() {
@@ -299,7 +481,7 @@ class _ChatScreenState extends State<ChatScreen> {
           'Content-Type': 'application/json'
         },
         body: jsonEncode({
-          'content': messageContent,
+          'content': messageValue ?? messageContent,
           'chatId': chatId,
         }),
       );
@@ -383,48 +565,116 @@ class _ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Group Info'),
-          content: BlocBuilder<ChatsBloc, ChatsState>(
-            builder: (context, state) {
-              if (state is GroupInfoFetched) {
-                final info = state.info;
-                return SizedBox(
-                  width: double.maxFinite,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: info.userMappings.length,
-                    itemBuilder: (context, index) {
-                      final user = info.userMappings[index];
-                      final userImage = user.userImage;
-                      final username = user.username;
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundImage: userImage != null
-                              ? NetworkImage(userImage)
-                              : null,
-                          child: userImage == null
-                              ? Text(username[0].toUpperCase())
-                              : null,
+        return isDarkMode
+            ? AlertDialog(
+                backgroundColor: Colors.grey[900], // Dark background
+                title: const Text(
+                  'Group Info',
+                  style: TextStyle(color: Colors.white), // Light text
+                ),
+                content: BlocBuilder<ChatsBloc, ChatsState>(
+                  builder: (context, state) {
+                    if (state is GroupInfoFetched) {
+                      final info = state.info;
+                      return SizedBox(
+                        width: double.maxFinite,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: info.userMappings.length,
+                          itemBuilder: (context, index) {
+                            final user = info.userMappings[index];
+                            final userImage = user.userImage;
+                            final username = user.username;
+                            return Card(
+                              color: Colors.grey[850], // Dark card
+                              margin: const EdgeInsets.symmetric(vertical: 4),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundImage: userImage != null
+                                      ? NetworkImage(userImage)
+                                      : null,
+                                  child: userImage == null
+                                      ? Text(
+                                          username[0].toUpperCase(),
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                        )
+                                      : null,
+                                ),
+                                title: Text(
+                                  user.getDisplayName(state.uid),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                subtitle: user.isAdmin
+                                    ? const Text(
+                                        'Admin',
+                                        style: TextStyle(
+                                            color: Colors.orangeAccent),
+                                      )
+                                    : null,
+                              ),
+                            );
+                          },
                         ),
-                        title: Text(user.getDisplayName(state.uid)),
-                        subtitle: user.isAdmin ? const Text('Admin') : null,
                       );
-                    },
-                  ),
-                );
-              }
+                    }
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      'Close',
+                      style:
+                          TextStyle(color: Colors.blueAccent), // Button color
+                    ),
+                  )
+                ],
+              )
+            : AlertDialog(
+                title: const Text('Group Info'),
+                content: BlocBuilder<ChatsBloc, ChatsState>(
+                  builder: (context, state) {
+                    if (state is GroupInfoFetched) {
+                      final info = state.info;
+                      return SizedBox(
+                        width: double.maxFinite,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: info.userMappings.length,
+                          itemBuilder: (context, index) {
+                            final user = info.userMappings[index];
+                            final userImage = user.userImage;
+                            final username = user.username;
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: userImage != null
+                                    ? NetworkImage(userImage)
+                                    : null,
+                                child: userImage == null
+                                    ? Text(username[0].toUpperCase())
+                                    : null,
+                              ),
+                              title: Text(user.getDisplayName(state.uid)),
+                              subtitle:
+                                  user.isAdmin ? const Text('Admin') : null,
+                            );
+                          },
+                        ),
+                      );
+                    }
 
-              return Loader();
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
-            )
-          ],
-        );
+                    return Loader();
+                  },
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Close'),
+                  )
+                ],
+              );
       },
     );
   }
@@ -436,6 +686,9 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollController.dispose();
     socket?.disconnect();
     _searchController.dispose();
+    ShakeGesture.unregisterCallback(onShake: onShake);
+
+    LightSensor.luxStream().drain();
     super.dispose();
   }
 
@@ -443,10 +696,14 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     String userId = widget.userId;
     return Scaffold(
+      backgroundColor:
+          isDarkMode ? Colors.black : Colors.white, // Dynamic background
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          // This callback is triggered when the AppBar back button is tapped.
+          icon: Icon(Icons.arrow_back,
+              color: isDarkMode
+                  ? Colors.white
+                  : Colors.black), // Change icon color
           onPressed: () {
             BlocProvider.of<ChatsBloc>(context).add(FetchChats());
             Navigator.of(context).pop();
@@ -456,10 +713,18 @@ class _ChatScreenState extends State<ChatScreen> {
             ? TextField(
                 controller: _searchController,
                 autofocus: true,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Search Users...',
+                  hintStyle: TextStyle(
+                      color: isDarkMode
+                          ? Colors.grey
+                          : Colors.black54), // Dark mode hint text
                   border: InputBorder.none,
                 ),
+                style: TextStyle(
+                    color: isDarkMode
+                        ? Colors.white
+                        : Colors.black), // Dark mode input text
                 textInputAction: TextInputAction.search,
                 onSubmitted: (value) {
                   final query = value.trim();
@@ -468,12 +733,17 @@ class _ChatScreenState extends State<ChatScreen> {
                   }
                 },
               )
-            : Text(widget.chatName),
+            : Text(
+                widget.chatName,
+                style:
+                    TextStyle(color: isDarkMode ? Colors.white : Colors.black),
+              ),
         actions: widget.isGroupChat
             ? [
                 isSearching
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: Icon(Icons.clear,
+                            color: isDarkMode ? Colors.white : Colors.black),
                         onPressed: () {
                           _searchController.clear();
                           setState(() {
@@ -482,7 +752,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         },
                       )
                     : IconButton(
-                        icon: const Icon(Icons.person_add_rounded),
+                        icon: Icon(Icons.person_add_rounded,
+                            color: isDarkMode ? Colors.white : Colors.black),
                         onPressed: () {
                           setState(() {
                             isSearching = true;
@@ -492,13 +763,21 @@ class _ChatScreenState extends State<ChatScreen> {
 
                 // Show group info button
                 IconButton(
-                  icon: const Icon(Icons.info_outline),
+                  icon: Icon(Icons.info_outline,
+                      color: isDarkMode ? Colors.white : Colors.black),
                   onPressed: showGroupInfo,
                 ),
               ]
-            : null,
-        centerTitle: false,
-        backgroundColor: Colors.transparent,
+            : [
+                IconButton(
+                    onPressed: () {
+                      isDarkMode = !isDarkMode;
+                      setState(() {});
+                    },
+                    icon: Icon(isDarkMode ? Icons.dark_mode : Icons.light_mode))
+              ],
+        backgroundColor:
+            isDarkMode ? Colors.grey[900] : Colors.white, // Dynamic app bar
         toolbarHeight: 70,
       ),
       body: Column(
@@ -506,7 +785,9 @@ class _ChatScreenState extends State<ChatScreen> {
           // Chat messages list
           Expanded(
             child: Container(
-              color: Colors.grey[200],
+              color: isDarkMode
+                  ? Colors.black
+                  : Colors.grey[200], // Dark mode background
               child: loading
                   ? const Center(child: CircularProgressIndicator())
                   : ListView.builder(
@@ -524,13 +805,21 @@ class _ChatScreenState extends State<ChatScreen> {
                                 vertical: 4, horizontal: 8),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: isSelf ? Colors.blue : Colors.white,
+                              color: isSelf
+                                  ? Colors.blue[700]
+                                  : isDarkMode
+                                      ? Colors.grey[800]
+                                      : Colors.white, // Dynamic message bubbles
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               message['content'] ?? '',
                               style: TextStyle(
-                                color: isSelf ? Colors.white : Colors.black,
+                                color: isSelf
+                                    ? Colors.white
+                                    : isDarkMode
+                                        ? Colors.white70
+                                        : Colors.black,
                               ),
                             ),
                           ),
@@ -541,9 +830,13 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           // Typing indicator from others
           if (otherUserTyping)
-            const Padding(
-              padding: EdgeInsets.all(4.0),
-              child: Text('Someone is typing...'),
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text(
+                'Someone is typing...',
+                style:
+                    TextStyle(color: isDarkMode ? Colors.grey : Colors.black),
+              ),
             ),
           // Show an error alert if needed
           if (showAlert)
@@ -551,41 +844,58 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: EdgeInsets.all(4.0),
               child: Text(
                 'Error sending message. Check your network connection.',
-                style: TextStyle(color: Colors.red),
+                style: TextStyle(color: Colors.redAccent),
               ),
             ),
           // Input area: emoji toggle, text input, and send button
-          Row(
-            children: [
-              IconButton(
-                icon: Icon(showEmojiPicker
-                    ? Icons.clear
-                    : Icons.emoji_emotions_outlined),
-                onPressed: toggleEmojiPicker,
-              ),
-              Expanded(
-                child: TextField(
-                  controller: _messageController,
-                  onChanged: (text) {
-                    onTyping(text);
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Type a message',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+          Container(
+            color: isDarkMode ? Colors.grey[900] : Colors.grey[300],
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    showEmojiPicker
+                        ? Icons.clear
+                        : Icons.emoji_emotions_outlined,
+                    color: isDarkMode ? Colors.white : Colors.black,
                   ),
-                  onSubmitted: (text) {
-                    sendMessage();
-                    _stopTyping();
-                  },
+                  onPressed: toggleEmojiPicker,
                 ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.send),
-                onPressed: sendMessage,
-              ),
-            ],
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    onChanged: (text) {
+                      onTyping(text);
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Type a message',
+                      hintStyle: TextStyle(
+                          color: isDarkMode ? Colors.grey : Colors.black54),
+                      filled: true,
+                      fillColor: isDarkMode
+                          ? Colors.grey[850]
+                          : Colors.white, // Dynamic input field
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    style: TextStyle(
+                        color: isDarkMode ? Colors.white : Colors.black),
+                    onSubmitted: (text) {
+                      sendMessage();
+                      _stopTyping();
+                    },
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.send,
+                      color: isDarkMode ? Colors.blueAccent : Colors.blue),
+                  onPressed: sendMessage,
+                ),
+              ],
+            ),
           ),
           // Emoji picker
           if (showEmojiPicker)
@@ -595,19 +905,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   onEmojiSelected: (category, emoji) {
                     addEmoji(emoji.emoji);
                   },
-                  onBackspacePressed: () {
-                    // Do something when the user taps the backspace button (optional)
-                    // Set it to null to hide the Backspace-Button
-                  },
-                  textEditingController:
-                      _messageController, // pass here the same [TextEditingController] that is connected to your input field, usually a [TextFormField]
+                  textEditingController: _messageController,
                   config: Config(
                     height: 256,
-
-                    // bgColor: const Color(0xFFF2F2F2),
                     checkPlatformCompatibility: true,
                     emojiViewConfig: EmojiViewConfig(
-                      // Issue: https://github.com/flutter/flutter/issues/28894
                       emojiSizeMax: 28 *
                           (foundation.defaultTargetPlatform ==
                                   TargetPlatform.iOS
@@ -624,16 +926,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     bottomActionBarConfig: const BottomActionBarConfig(),
                     searchViewConfig: const SearchViewConfig(),
                   ),
-                )
-
-                // EmojiPicker(
-                //   onEmojiSelected: (category, emoji) {
-                //     addEmoji(emoji.emoji);
-                //   },
-                //   // Optionally, you can remove the textEditingController here if needed:
-                //   // textEditingController: _messageController,
-                // ),
-                ),
+                )),
         ],
       ),
     );

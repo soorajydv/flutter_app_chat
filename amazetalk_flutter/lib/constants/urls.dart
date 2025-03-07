@@ -1,2 +1,2 @@
 // ignore: constant_identifier_names
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = 'http://192.168.1.83:5000';
